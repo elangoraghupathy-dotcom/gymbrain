@@ -674,7 +674,7 @@ function renderNextPuzzle(){
   const area=document.getElementById('g-puzzle-area');
   area.innerHTML='';
 
-  if(p.type==='memory'&&!p.option_a){
+  if(p.type==='memory'&&(p.input_type==='grid'||!p.option_a)){
     renderMemoryGame(area,p);
     return;
   }
