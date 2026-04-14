@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GymBrain — Train Your Brain. Every Day.</title>
+<meta name="description" content="Daily brain training for working professionals. 15 minutes. Logic, math, memory, word puzzles, visual reasoning. Then it locks. Come back tomorrow.">
+<meta property="og:title" content="GymBrain — Train Your Brain. Every Day.">
+<meta property="og:description" content="15 minutes of daily brain training. Locks after your session. Come back tomorrow.">
+<meta property="og:url" content="https://gymbrain.in">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;700&family=Instrument+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#080810;--surface:#0f0f1a;--card:#16162a;--card2:#1c1c32;
+    --accent:#c8ff00;--accent2:#ff3d6e;--accent3:#00e5ff;--accent4:#ff9500;
+    --text:#eeeef5;--muted:#5a5a7a;--border:#252540;--border2:#2e2e50;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    font-family:'Instrument Sans',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    overflow-x:hidden;
+  }
+
+  /* GRID BG */
+  body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    background-image:
+      linear-gradient(rgba(200,255,0,0.025) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(200,255,0,0.025) 1px,transparent 1px);
+    background-size:60px 60px;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  /* NAV */
+  nav{
+    position:fixed;
+    top:0;left:0;right:0;
+    z-index:100;
+    padding:16px 24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:rgba(8,8,16,0.85);
+    backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border);
+  }
+
+  .nav-logo{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:22px;
+    letter-spacing:-1px;
+    color:var(--text);
+    text-decoration:none;
+  }
+
+  .nav-logo span{color:var(--accent);}
+
+  .nav-cta{
+    background:var(--accent);
+    color:#080810;
+    border:none;
+    border-radius:10px;
+    padding:10px 24px;
+    font-family:'Syne',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:0.5px;
+    cursor:pointer;
+    text-decoration:none;
+    transition:all 0.2s;
+  }
+
+  .nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(200,255,0,0.3);}
+
+  /* SECTIONS */
+  section{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:900px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+
+  /* ===== HERO ===== */
+  .hero{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:flex-start;
+    padding-top:100px;
+    padding-bottom:80px;
+  }
+
+  .hero-eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:4px;
+    color:var(--accent);
+    text-transform:uppercase;
+    margin-bottom:24px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .hero-eyebrow::before{
+    content:'';
+    width:32px;
+    height:1px;
+    background:var(--accent);
+  }
+
+  .hero-title{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:clamp(48px,10vw,96px);
+    letter-spacing:-3px;
+    line-height:0.92;
+    color:var(--text);
+    margin-bottom:32px;
+  }
+
+  .hero-title span{color:var(--accent);}
+
+  .hero-sub{
+    font-size:clamp(17px,3vw,22px);
+    color:var(--muted);
+    line-height:1.7;
+    max-width:560px;
+    margin-bottom:48px;
+    font-weight:300;
+  }
+
+  .hero-sub strong{color:var(--text);font-weight:500;}
+
+  .hero-cta-row{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+
+  .cta-primary{
+    background:var(--accent);
+    color:#080810;
+    border:none;
+    border-radius:14px;
+    padding:18px 40px;
+    font-family:'Syne',sans-serif;
+    font-weight:700;
+    font-size:18px;
+    letter-spacing:0.5px;
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-block;
+    transition:all 0.2s;
+  }
+
+  .cta-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(200,255,0,0.35);}
+
+  .cta-note{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:1px;
+  }
+
+  /* HERO STATS */
+  .hero-stats{
+    display:flex;
+    gap:40px;
+    margin-top:72px;
+    padding-top:40px;
+    border-top:1px solid var(--border);
+    width:100%;
+    flex-wrap:wrap;
+  }
+
+  .hero-stat-val{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:36px;
+    color:var(--accent);
+    line-height:1;
+  }
+
+  .hero-stat-lbl{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:var(--muted);
+    letter-spacing:2px;
+    text-transform:uppercase;
+    margin-top:4px;
+  }
+
+  /* GLOW */
+  .hero-glow{
+    position:absolute;
+    top:20%;right:-100px;
+    width:500px;height:500px;
+    background:radial-gradient(circle,rgba(200,255,0,0.08) 0%,transparent 65%);
+    pointer-events:none;
+  }
+
+  /* ===== PROBLEM SECTION ===== */
+  .problem{
+    padding:100px 24px;
+  }
+
+  .section-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    letter-spacing:4px;
+    color:var(--muted);
+    text-transform:uppercase;
+    margin-bottom:40px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  .section-label::after{
+    content:'';
+    flex:1;
+    height:1px;
+    background:var(--border);
+    max-width:60px;
+  }
+
+  .problem-text{
+    font-family:'Syne',sans-serif;
+    font-weight:700;
+    font-size:clamp(28px,5vw,48px);
+    line-height:1.2;
+    letter-spacing:-1px;
+    margin-bottom:40px;
+  }
+
+  .problem-text .highlight{color:var(--accent);}
+  .problem-text .dim{color:var(--muted);}
+
+  .problem-body{
+    font-size:17px;
+    color:var(--muted);
+    line-height:1.9;
+    max-width:620px;
+    font-weight:300;
+  }
+
+  .problem-body strong{color:var(--text);font-weight:500;}
+
+  /* ===== HOW IT WORKS ===== */
+  .how{
+    padding:100px 24px;
+  }
+
+  .how-title{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:clamp(32px,6vw,56px);
+    letter-spacing:-2px;
+    margin-bottom:60px;
+    line-height:1;
+  }
+
+  .steps{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:16px;
+  }
+
+  .step{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:32px 28px;
+    position:relative;
+    overflow:hidden;
+    transition:border-color 0.2s;
+  }
+
+  .step:hover{border-color:var(--border2);}
+
+  .step-num{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:64px;
+    color:var(--border2);
+    line-height:1;
+    margin-bottom:20px;
+    letter-spacing:-2px;
+  }
+
+  .step-title{
+    font-family:'Syne',sans-serif;
+    font-weight:700;
+    font-size:20px;
+    margin-bottom:12px;
+    letter-spacing:-0.5px;
+  }
+
+  .step-body{
+    font-size:14px;
+    color:var(--muted);
+    line-height:1.7;
+  }
+
+  .step-accent{
+    position:absolute;
+    bottom:0;left:0;right:0;
+    height:2px;
+    background:var(--accent);
+    transform:scaleX(0);
+    transition:transform 0.3s;
+    transform-origin:left;
+  }
+
+  .step:hover .step-accent{transform:scaleX(1);}
+
+  /* ===== PUZZLE TYPES ===== */
+  .types{
+    padding:100px 24px;
+  }
+
+  .types-title{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:clamp(32px,6vw,56px);
+    letter-spacing:-2px;
+    margin-bottom:16px;
+    line-height:1;
+  }
+
+  .types-sub{
+    font-size:16px;
+    color:var(--muted);
+    margin-bottom:60px;
+    font-weight:300;
+  }
+
+  .types-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:12px;
+  }
+
+  .type-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:28px 24px;
+    display:flex;
+    align-items:flex-start;
+    gap:16px;
+    transition:all 0.2s;
+  }
+
+  .type-card:hover{border-color:var(--border2);transform:translateY(-2px);}
+
+  .type-icon{
+    font-size:28px;
+    flex-shrink:0;
+    margin-top:2px;
+  }
+
+  .type-name{
+    font-family:'Syne',sans-serif;
+    font-weight:700;
+    font-size:16px;
+    margin-bottom:6px;
+  }
+
+  .type-desc{
+    font-size:13px;
+    color:var(--muted);
+    line-height:1.6;
+  }
+
+  .type-tag-pill{
+    display:inline-block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;
+    letter-spacing:1px;
+    color:var(--accent3);
+    border:1px solid rgba(0,229,255,0.2);
+    border-radius:100px;
+    padding:2px 8px;
+    margin-top:8px;
+  }
+
+  /* ===== SESSION MODES ===== */
+  .modes{
+    padding:100px 24px;
+  }
+
+  .modes-title{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:clamp(32px,6vw,56px);
+    letter-spacing:-2px;
+    margin-bottom:16px;
+    line-height:1;
+  }
+
+  .modes-sub{
+    font-size:16px;
+    color:var(--muted);
+    margin-bottom:60px;
+    font-weight:300;
+  }
+
+  .modes-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+  }
+
+  @media(max-width:640px){
+    .modes-grid{grid-template-columns:repeat(2,1fr);}
+  }
+
+  .mode-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:28px 16px;
+    text-align:center;
+    transition:all 0.2s;
+  }
+
+  .mode-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+  .mode-card.featured{border-color:var(--accent);background:rgba(200,255,0,0.04);}
+
+  .mode-emoji{font-size:28px;margin-bottom:12px;}
+
+  .mode-mins{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:36px;
+    color:var(--text);
+    line-height:1;
+    letter-spacing:-1px;
+  }
+
+  .mode-card.featured .mode-mins{color:var(--accent);}
+
+  .mode-min-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:var(--muted);
+    letter-spacing:1px;
+    margin-bottom:8px;
+  }
+
+  .mode-multiplier{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:var(--accent3);
+    letter-spacing:1px;
+  }
+
+  .mode-card.featured .mode-multiplier{color:var(--accent);}
+
+  .mode-badge{
+    display:inline-block;
+    background:var(--accent);
+    color:#080810;
+    font-family:'JetBrains Mono',monospace;
+    font-size:8px;
+    letter-spacing:1px;
+    padding:3px 8px;
+    border-radius:100px;
+    margin-top:8px;
+  }
+
+  /* ===== SCIENCE ===== */
+  .science{
+    padding:100px 24px;
+  }
+
+  .science-inner{
+    background:var(--card);
+    border:1px solid var(--border2);
+    border-radius:24px;
+    padding:60px 48px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:60px;
+    align-items:center;
+  }
+
+  @media(max-width:640px){
+    .science-inner{grid-template-columns:1fr;padding:40px 28px;gap:40px;}
+  }
+
+  .science-title{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:clamp(28px,4vw,40px);
+    letter-spacing:-1px;
+    line-height:1.1;
+    margin-bottom:24px;
+  }
+
+  .science-title span{color:var(--accent);}
+
+  .science-body{
+    font-size:15px;
+    color:var(--muted);
+    line-height:1.9;
+    font-weight:300;
+  }
+
+  .science-pills{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+
+  .science-pill{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:20px 24px;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    transition:border-color 0.2s;
+  }
+
+  .science-pill:hover{border-color:var(--border2);}
+
+  .science-pill-icon{
+    font-size:24px;
+    flex-shrink:0;
+  }
+
+  .science-pill-title{
+    font-family:'Syne',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    margin-bottom:3px;
+  }
+
+  .science-pill-desc{
+    font-size:12px;
+    color:var(--muted);
+    line-height:1.5;
+  }
+
+  /* ===== PRICING ===== */
+  .pricing{
+    padding:100px 24px;
+    text-align:center;
+  }
+
+  .pricing-title{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:clamp(32px,6vw,56px);
+    letter-spacing:-2px;
+    margin-bottom:16px;
+    line-height:1;
+  }
+
+  .pricing-sub{
+    font-size:16px;
+    color:var(--muted);
+    margin-bottom:60px;
+    font-weight:300;
+  }
+
+  .pricing-cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:16px;
+    max-width:700px;
+    margin:0 auto;
+  }
+
+  .pricing-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:40px 32px;
+    text-align:left;
+    position:relative;
+    transition:all 0.2s;
+  }
+
+  .pricing-card.pro{
+    border-color:var(--accent);
+    background:rgba(200,255,0,0.03);
+  }
+
+  .pricing-card:hover{transform:translateY(-2px);}
+
+  .plan-badge{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:16px;
+  }
+
+  .pricing-card.pro .plan-badge{color:var(--accent);}
+
+  .plan-price{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:48px;
+    letter-spacing:-2px;
+    line-height:1;
+    margin-bottom:4px;
+  }
+
+  .plan-period{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:1px;
+    margin-bottom:28px;
+  }
+
+  .plan-features{
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-bottom:32px;
+  }
+
+  .plan-features li{
+    font-size:14px;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .plan-features li::before{
+    content:'✓';
+    color:var(--accent);
+    font-weight:700;
+    flex-shrink:0;
+  }
+
+  .plan-cta{
+    width:100%;
+    border-radius:12px;
+    padding:14px;
+    font-family:'Syne',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:0.5px;
+    cursor:pointer;
+    text-decoration:none;
+    display:block;
+    text-align:center;
+    transition:all 0.2s;
+    border:none;
+  }
+
+  .plan-cta.free{
+    background:var(--surface);
+    color:var(--text);
+    border:1px solid var(--border2);
+  }
+
+  .plan-cta.free:hover{border-color:var(--accent);color:var(--accent);}
+
+  .plan-cta.paid{
+    background:var(--accent);
+    color:#080810;
+  }
+
+  .plan-cta.paid:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(200,255,0,0.3);}
+
+  /* ===== WAITLIST ===== */
+  .waitlist{
+    padding:100px 24px;
+  }
+
+  .waitlist-inner{
+    background:linear-gradient(135deg,rgba(200,255,0,0.06) 0%,rgba(0,229,255,0.03) 100%);
+    border:1px solid rgba(200,255,0,0.15);
+    border-radius:24px;
+    padding:80px 48px;
+    text-align:center;
+  }
+
+  @media(max-width:640px){
+    .waitlist-inner{padding:48px 28px;}
+  }
+
+  .waitlist-title{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:clamp(32px,6vw,56px);
+    letter-spacing:-2px;
+    line-height:1;
+    margin-bottom:16px;
+  }
+
+  .waitlist-title span{color:var(--accent);}
+
+  .waitlist-sub{
+    font-size:16px;
+    color:var(--muted);
+    margin-bottom:40px;
+    font-weight:300;
+    max-width:500px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .waitlist-form{
+    display:flex;
+    gap:12px;
+    max-width:480px;
+    margin:0 auto 16px;
+    flex-wrap:wrap;
+  }
+
+  .waitlist-input{
+    flex:1;
+    min-width:200px;
+    background:var(--surface);
+    border:1px solid var(--border2);
+    border-radius:12px;
+    padding:14px 18px;
+    font-family:'Instrument Sans',sans-serif;
+    font-size:15px;
+    color:var(--text);
+    outline:none;
+    transition:border-color 0.2s;
+  }
+
+  .waitlist-input:focus{border-color:var(--accent);}
+  .waitlist-input::placeholder{color:var(--muted);}
+
+  .waitlist-btn{
+    background:var(--accent);
+    color:#080810;
+    border:none;
+    border-radius:12px;
+    padding:14px 28px;
+    font-family:'Syne',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    transition:all 0.2s;
+    white-space:nowrap;
+  }
+
+  .waitlist-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(200,255,0,0.3);}
+
+  .waitlist-note{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:var(--muted);
+    letter-spacing:1px;
+  }
+
+  .waitlist-success{
+    display:none;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    color:var(--accent);
+    letter-spacing:1px;
+    padding:16px;
+  }
+
+  /* ===== FOOTER ===== */
+  footer{
+    position:relative;
+    z-index:1;
+    border-top:1px solid var(--border);
+    padding:40px 24px;
+    max-width:900px;
+    margin:0 auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+
+  .footer-logo{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:20px;
+    letter-spacing:-1px;
+    color:var(--text);
+    text-decoration:none;
+  }
+
+  .footer-logo span{color:var(--accent);}
+
+  .footer-links{
+    display:flex;
+    gap:24px;
+  }
+
+  .footer-links a{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--muted);
+    text-decoration:none;
+    letter-spacing:1px;
+    transition:color 0.2s;
+  }
+
+  .footer-links a:hover{color:var(--accent);}
+
+  .footer-copy{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:var(--muted);
+    letter-spacing:1px;
+    width:100%;
+    text-align:center;
+    padding-top:16px;
+    border-top:1px solid var(--border);
+    margin-top:8px;
+  }
+
+  /* ANIMATIONS */
+  .fade-up{
+    opacity:0;
+    transform:translateY(24px);
+    transition:opacity 0.6s ease,transform 0.6s ease;
+  }
+
+  .fade-up.visible{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  /* MOBILE */
+  @media(max-width:640px){
+    nav{padding:12px 16px;}
+    .hero{padding-top:80px;}
+    .hero-stats{gap:24px;}
+    .problem,.how,.types,.modes,.science,.pricing,.waitlist{padding:64px 16px;}
+    .science-inner{padding:32px 20px;}
+    .waitlist-inner{padding:40px 20px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">Gym<span>Brain</span></a>
+  <a href="/app" class="nav-cta">Start Training Free</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-eyebrow">Daily Brain Training</div>
+  <h1 class="hero-title">Train your<br><span>brain.</span><br>Every day.</h1>
+  <p class="hero-sub">
+    You go to the gym for your body. Some months every day. Some months not at all. But you always aspire to go back.<br><br>
+    <strong>Your brain needs the same thing.</strong> Resistance. Consistency. Daily activation.
+  </p>
+  <div class="hero-cta-row">
+    <a href="/app" class="cta-primary">Start Training Free →</a>
+    <div class="cta-note">Free for 30 days · No card required</div>
+  </div>
+  <div class="hero-stats">
+    <div>
+      <div class="hero-stat-val">15</div>
+      <div class="hero-stat-lbl">Minutes a day</div>
+    </div>
+    <div>
+      <div class="hero-stat-val">6</div>
+      <div class="hero-stat-lbl">Puzzle types</div>
+    </div>
+    <div>
+      <div class="hero-stat-val">300+</div>
+      <div class="hero-stat-lbl">Unique challenges</div>
+    </div>
+    <div>
+      <div class="hero-stat-val">1</div>
+      <div class="hero-stat-lbl">Session per day</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem fade-up">
+  <div class="section-label">The Problem</div>
+  <div class="problem-text">
+    We track everything<br>
+    about our <span class="highlight">bodies.</span><br>
+    <span class="dim">We ignore our brains.</span>
+  </div>
+  <p class="problem-body">
+    Step counts. Sleep scores. Calorie trackers. Protein intake. We have apps for everything physical.<br><br>
+    But the organ doing all the actual work — the <strong>thinking, deciding, creating, connecting</strong> — gets nothing. We feed it coffee and deadlines and call it a day.<br><br>
+    For working professionals, your brain is your primary tool. An unconditioned brain makes slower decisions, forgets faster, and fatigues earlier. That's not a personal failing — it's just an untrained muscle.<br><br>
+    <strong>GymBrain fixes that. 15 minutes. Every day.</strong>
+  </p>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how fade-up">
+  <div class="section-label">How It Works</div>
+  <h2 class="how-title">Simple as<br>going to<br>the gym.</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-title">Choose your session</div>
+      <div class="step-body">Pick 15, 30, 45, or 60 minutes. Even the shortest session activates and sharpens. Longer sessions earn higher point multipliers.</div>
+      <div class="step-accent"></div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-title">Train hard</div>
+      <div class="step-body">Six types of puzzles rotate — never the same type twice in a row. Difficulty adapts to your accuracy in real time. Your weak areas get more reps.</div>
+      <div class="step-accent"></div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-title">It locks. Come back tomorrow.</div>
+      <div class="step-body">When your session ends, GymBrain locks until midnight. Just like the gym — rest is when the real growth happens. Show up again tomorrow.</div>
+      <div class="step-accent"></div>
+    </div>
+  </div>
+</section>
+
+<!-- PUZZLE TYPES -->
+<section class="types fade-up">
+  <div class="section-label">What You Train</div>
+  <h2 class="types-title">Six ways to<br>challenge your brain.</h2>
+  <p class="types-sub">Every session rotates through all six. No type appears twice in a row — the context-switching is the workout.</p>
+  <div class="types-grid">
+    <div class="type-card">
+      <div class="type-icon">🧩</div>
+      <div>
+        <div class="type-name">Logic</div>
+        <div class="type-desc">Lateral thinking, deductive reasoning, and classic logic traps. The puzzles your MBA should have taught you.</div>
+        <div class="type-tag-pill">REASONING</div>
+      </div>
+    </div>
+    <div class="type-card">
+      <div class="type-icon">➕</div>
+      <div>
+        <div class="type-name">Mental Math</div>
+        <div class="type-desc">Arithmetic, percentages, probability. Fast calculation without a calculator. Sharper than you think.</div>
+        <div class="type-tag-pill">CALCULATION</div>
+      </div>
+    </div>
+    <div class="type-card">
+      <div class="type-icon">🧠</div>
+      <div>
+        <div class="type-name">Memory</div>
+        <div class="type-desc">Pattern matching, sequence recall, and visual memory grids. Your working memory is a muscle — train it.</div>
+        <div class="type-tag-pill">RETENTION</div>
+      </div>
+    </div>
+    <div class="type-card">
+      <div class="type-icon">🔤</div>
+      <div>
+        <div class="type-name">Word</div>
+        <div class="type-desc">Anagrams, analogies, word connections, and vocabulary. Language fluency is cognitive fluency.</div>
+        <div class="type-tag-pill">LANGUAGE</div>
+      </div>
+    </div>
+    <div class="type-card">
+      <div class="type-icon">👁</div>
+      <div>
+        <div class="type-name">Visual Reasoning</div>
+        <div class="type-desc">Spatial puzzles, geometry, and pattern recognition. The part of your brain most people never consciously exercise.</div>
+        <div class="type-tag-pill">SPATIAL</div>
+      </div>
+    </div>
+    <div class="type-card">
+      <div class="type-icon">🔢</div>
+      <div>
+        <div class="type-name">Sequences</div>
+        <div class="type-desc">Number patterns, letter series, and abstract progressions. Pattern recognition is the foundation of strategic thinking.</div>
+        <div class="type-tag-pill">PATTERNS</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SESSION MODES -->
+<section class="modes fade-up">
+  <div class="section-label">Session Modes</div>
+  <h2 class="modes-title">Train on<br>your terms.</h2>
+  <p class="modes-sub">15 minutes on a packed day. 60 minutes when you have space. Every session counts.</p>
+  <div class="modes-grid">
+    <div class="mode-card">
+      <div class="mode-emoji">⚡</div>
+      <div class="mode-mins">15</div>
+      <div class="mode-min-label">minutes</div>
+      <div class="mode-multiplier">1× points</div>
+    </div>
+    <div class="mode-card featured">
+      <div class="mode-emoji">🔥</div>
+      <div class="mode-mins">30</div>
+      <div class="mode-min-label">minutes</div>
+      <div class="mode-multiplier">1.5× points</div>
+      <div class="mode-badge">POPULAR</div>
+    </div>
+    <div class="mode-card">
+      <div class="mode-emoji">💪</div>
+      <div class="mode-mins">45</div>
+      <div class="mode-min-label">minutes</div>
+      <div class="mode-multiplier">1.75× points</div>
+    </div>
+    <div class="mode-card">
+      <div class="mode-emoji">🏆</div>
+      <div class="mode-mins">60</div>
+      <div class="mode-min-label">minutes</div>
+      <div class="mode-multiplier">2× points</div>
+    </div>
+  </div>
+</section>
+
+<!-- SCIENCE -->
+<section class="science fade-up">
+  <div class="section-label">The Science</div>
+  <div class="science-inner">
+    <div>
+      <h2 class="science-title">Built on real<br><span>brain science.</span></h2>
+      <p class="science-body">
+        GymBrain isn't random puzzles. Every session is built on four proven principles of cognitive training — the same ones used in neurological rehabilitation and elite performance coaching.
+      </p>
+    </div>
+    <div class="science-pills">
+      <div class="science-pill">
+        <div class="science-pill-icon">🔄</div>
+        <div>
+          <div class="science-pill-title">Spaced Repetition</div>
+          <div class="science-pill-desc">Puzzles you got wrong return sooner. Mastered ones return later. Your brain consolidates at the right intervals.</div>
+        </div>
+      </div>
+      <div class="science-pill">
+        <div class="science-pill-icon">📈</div>
+        <div>
+          <div class="science-pill-title">Progressive Overload</div>
+          <div class="science-pill-desc">Difficulty adapts to your accuracy in real time. Always challenging, never impossible.</div>
+        </div>
+      </div>
+      <div class="science-pill">
+        <div class="science-pill-icon">🔀</div>
+        <div>
+          <div class="science-pill-title">Interleaving</div>
+          <div class="science-pill-desc">Types never repeat back-to-back. The context switch between puzzle types is itself a cognitive workout.</div>
+        </div>
+      </div>
+      <div class="science-pill">
+        <div class="science-pill-icon">😴</div>
+        <div>
+          <div class="science-pill-title">Forced Recovery</div>
+          <div class="science-pill-desc">The daily lock enforces rest — when neural consolidation actually happens. Growth is in the recovery.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing fade-up">
+  <div class="section-label">Pricing</div>
+  <h2 class="pricing-title">Simple.<br>Fair. Honest.</h2>
+  <p class="pricing-sub">Start free. No card required. Keep training after 30 days for less than a cup of coffee a week.</p>
+  <div class="pricing-cards">
+    <div class="pricing-card">
+      <div class="plan-badge">FREE TRIAL</div>
+      <div class="plan-price">₹0</div>
+      <div class="plan-period">for 30 days</div>
+      <ul class="plan-features">
+        <li>All 6 puzzle types</li>
+        <li>All 4 session modes</li>
+        <li>Streak tracking</li>
+        <li>Adaptive difficulty</li>
+        <li>No card required</li>
+      </ul>
+      <a href="/app" class="plan-cta free">Start Free →</a>
+    </div>
+    <div class="pricing-card pro">
+      <div class="plan-badge">PRO — AFTER 30 DAYS</div>
+      <div class="plan-price">₹149</div>
+      <div class="plan-period">per month · or ₹999/year</div>
+      <ul class="plan-features">
+        <li>Everything in free</li>
+        <li>Full puzzle history</li>
+        <li>Weak area analytics</li>
+        <li>Spaced repetition engine</li>
+        <li>Priority new puzzle drops</li>
+      </ul>
+      <a href="/app" class="plan-cta paid">Start Training Free →</a>
+    </div>
+  </div>
+</section>
+
+<!-- WAITLIST / EMAIL CAPTURE -->
+<section class="waitlist fade-up">
+  <div class="waitlist-inner">
+    <h2 class="waitlist-title">Ready to train<br>your <span>brain?</span></h2>
+    <p class="waitlist-sub">Join working professionals who are training daily. Free for 30 days — no card, no commitment.</p>
+    <div class="waitlist-form">
+      <input type="email" class="waitlist-input" id="waitlist-email" placeholder="your@email.com"/>
+      <button class="waitlist-btn" onclick="handleWaitlist()">Start Free →</button>
+    </div>
+    <div class="waitlist-success" id="waitlist-success">✓ You're in. Opening GymBrain now...</div>
+    <div class="waitlist-note">Free for 30 days · Then ₹149/mo · Cancel anytime</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="/" class="footer-logo">Gym<span>Brain</span></a>
+  <div class="footer-links">
+    <a href="/app">Train Now</a>
+    <a href="mailto:hello@gymbrain.in">Contact</a>
+  </div>
+  <div class="footer-copy">
+    © 2025 GymBrain · gymbrain.in · Train your brain. Every day. · Built by Elango Raghupathy
+  </div>
+</footer>
+
+<script>
+// Fade-up on scroll
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+},{threshold:0.1});
+document.querySelectorAll('.fade-up').forEach(el=>observer.observe(el));
+
+// Waitlist
+function handleWaitlist(){
+  const email=document.getElementById('waitlist-email').value.trim();
+  if(!email||!email.includes('@')){
+    document.getElementById('waitlist-email').style.borderColor='var(--accent2)';
+    return;
+  }
+  // Save email to localStorage as fallback, redirect to app
+  localStorage.setItem('gymbrain_signup_email',email);
+  document.getElementById('waitlist-success').style.display='block';
+  document.querySelector('.waitlist-form').style.display='none';
+  setTimeout(()=>{window.location.href='/app?email='+encodeURIComponent(email);},1500);
+}
+
+document.getElementById('waitlist-email').addEventListener('keydown',e=>{
+  if(e.key==='Enter')handleWaitlist();
+});
+
+// Smooth CTA scroll if on same page
+document.querySelectorAll('a[href="/app"]').forEach(a=>{
+  a.addEventListener('click',function(e){
+    // Let it navigate normally
+  });
+});
+</script>
+</body>
+</html>
