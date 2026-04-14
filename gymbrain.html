@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GymBrain — Daily Mental Training</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;700&family=Instrument+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --bg:#080810;--surface:#0f0f1a;--card:#16162a;--card2:#1c1c32;
+    --accent:#c8ff00;--accent2:#ff3d6e;--accent3:#00e5ff;--accent4:#ff9500;
+    --text:#eeeef5;--muted:#5a5a7a;--border:#252540;--border2:#2e2e50;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Instrument Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow-x:hidden;position:relative;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(200,255,0,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(200,255,0,0.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+  body::after{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(200,255,0,0.06) 0%,transparent 70%);pointer-events:none;z-index:0;}
+  .wrap{position:relative;z-index:1;width:100%;max-width:640px;padding:20px;display:flex;flex-direction:column;align-items:center;min-height:100vh;justify-content:center;}
+  .screen{display:none;width:100%;flex-direction:column;align-items:center;}
+  .screen.active{display:flex;}
+  .logo-mark{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(48px,12vw,80px);letter-spacing:-2px;color:var(--text);text-align:center;line-height:1;}
+  .logo-mark span{color:var(--accent);}
+  .logo-tagline{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-top:10px;text-align:center;}
+  .auth-card{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:36px 32px;width:100%;margin-top:40px;}
+  .auth-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:4px;}
+  .auth-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:28px;}
+  .google-btn{width:100%;background:#fff;color:#1a1a1a;border:none;border-radius:12px;padding:14px 20px;font-family:'Instrument Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:all 0.2s;}
+  .google-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(255,255,255,0.15);}
+  .google-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  .google-icon{width:20px;height:20px;flex-shrink:0;}
+  .or-divider{display:flex;align-items:center;gap:16px;margin:24px 0;width:100%;}
+  .or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--border2);}
+  .or-text{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+  .field-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;display:block;}
+  .field-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:14px 18px;font-family:'Instrument Sans',sans-serif;font-size:15px;color:var(--text);outline:none;transition:border-color 0.2s;margin-bottom:16px;}
+  .field-input:focus{border-color:var(--accent);}
+  .field-input::placeholder{color:var(--muted);}
+  .primary-btn{width:100%;background:var(--accent);color:#080810;border:none;border-radius:12px;padding:16px;font-family:'Syne',sans-serif;font-weight:700;font-size:16px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;margin-top:4px;}
+  .primary-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(200,255,0,0.3);}
+  .primary-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none;}
+  .auth-toggle{text-align:center;margin-top:20px;font-size:13px;color:var(--muted);}
+  .auth-toggle a{color:var(--accent);cursor:pointer;text-decoration:none;font-weight:500;}
+  .msg{font-family:'JetBrains Mono',monospace;font-size:11px;padding:12px 16px;border-radius:8px;margin-top:14px;display:none;line-height:1.6;}
+  .msg.error{background:rgba(255,61,110,0.1);color:var(--accent2);border:1px solid rgba(255,61,110,0.2);display:block;}
+  .msg.success{background:rgba(200,255,0,0.08);color:var(--accent);border:1px solid rgba(200,255,0,0.2);display:block;}
+  .home-header{display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:32px;}
+  .home-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;letter-spacing:-1px;}
+  .home-logo span{color:var(--accent);}
+  .user-pill{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;background:var(--card);border:1px solid var(--border);border-radius:100px;padding:6px 14px;cursor:pointer;transition:all 0.2s;}
+  .user-pill:hover{border-color:var(--accent2);color:var(--accent2);}
+  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;margin-bottom:24px;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 16px;text-align:center;}
+  .stat-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--accent);line-height:1;}
+  .stat-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:6px;}
+  .date-card{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px;width:100%;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;}
+  .date-info .day{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1;}
+  .date-info .date{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;margin-top:4px;}
+  .puzzle-types{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:200px;}
+  .type-chip{background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:4px 10px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;}
+  .mode-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;align-self:flex-start;margin-bottom:12px;}
+  .mode-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;margin-bottom:24px;}
+  .mode-btn{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 8px;cursor:pointer;transition:all 0.2s;text-align:center;}
+  .mode-btn.selected{border-color:var(--accent);background:rgba(200,255,0,0.05);}
+  .mode-time{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--text);}
+  .mode-btn.selected .mode-time{color:var(--accent);}
+  .mode-unit{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;margin-top:2px;}
+  .mode-mult{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent3);margin-top:6px;}
+  .mode-btn.selected .mode-mult{color:var(--accent);}
+  .mode-icon{font-size:18px;margin-bottom:6px;}
+  .cooldown-card{background:rgba(255,61,110,0.05);border:1px solid rgba(255,61,110,0.2);border-radius:16px;padding:24px;width:100%;text-align:center;margin-top:16px;}
+  .cooldown-title{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--accent2);margin-bottom:8px;}
+  .cooldown-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.8;letter-spacing:1px;}
+  .cooldown-sub strong{color:var(--accent3);}
+  .hud{width:100%;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+  .hud-timer{font-family:'Syne',sans-serif;font-weight:800;font-size:48px;letter-spacing:-2px;color:var(--accent);line-height:1;transition:color 0.3s;}
+  .hud-timer.warning{color:var(--accent2);animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+  .hud-right{text-align:right;}
+  .hud-score-val{font-family:'Syne',sans-serif;font-weight:800;font-size:32px;color:var(--text);line-height:1;}
+  .hud-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;}
+  .progress-bar{width:100%;height:2px;background:var(--border);border-radius:2px;margin-bottom:28px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--accent);transition:width 1s linear,background 0.5s;}
+  .type-tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent3);border:1px solid rgba(0,229,255,0.3);border-radius:100px;padding:4px 12px;margin-bottom:20px;}
+  .puzzle-card{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:36px 28px;width:100%;animation:rise 0.35s cubic-bezier(0.16,1,0.3,1);}
+  @keyframes rise{from{opacity:0;transform:translateY(16px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+  .puzzle-counter{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:16px;}
+  .puzzle-q{font-size:clamp(17px,3.5vw,22px);line-height:1.6;font-weight:400;margin-bottom:28px;color:var(--text);}
+  .puzzle-q strong{color:var(--accent);font-weight:700;}
+  .opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .opt-btn{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 14px;font-family:'Instrument Sans',sans-serif;font-size:15px;color:var(--text);cursor:pointer;transition:all 0.15s;text-align:left;line-height:1.3;}
+  .opt-btn:hover:not(:disabled){border-color:var(--accent3);color:var(--accent3);background:rgba(0,229,255,0.04);}
+  .opt-btn.correct{border-color:var(--accent);background:rgba(200,255,0,0.07);color:var(--accent);}
+  .opt-btn.wrong{border-color:var(--accent2);background:rgba(255,61,110,0.07);color:var(--accent2);}
+  .opt-btn:disabled{cursor:default;}
+  .input-wrap{display:flex;flex-direction:column;gap:10px;}
+  .ans-input{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:16px 20px;font-family:'JetBrains Mono',monospace;font-size:24px;color:var(--text);text-align:center;letter-spacing:4px;width:100%;outline:none;transition:border-color 0.2s;}
+  .ans-input:focus{border-color:var(--accent3);}
+  .ans-input.correct{border-color:var(--accent);color:var(--accent);}
+  .ans-input.wrong{border-color:var(--accent2);color:var(--accent2);}
+  .sub-btn{background:var(--accent3);color:#080810;border:none;border-radius:12px;padding:14px;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
+  .sub-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,229,255,0.25);}
+  .feedback{margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:11px;padding:12px 16px;border-radius:10px;line-height:1.7;animation:pop 0.25s cubic-bezier(0.16,1,0.3,1);}
+  @keyframes pop{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
+  .feedback.correct{background:rgba(200,255,0,0.07);color:var(--accent);border:1px solid rgba(200,255,0,0.15);}
+  .feedback.wrong{background:rgba(255,61,110,0.07);color:var(--accent2);border:1px solid rgba(255,61,110,0.15);}
+  .next-btn{margin-top:14px;width:100%;background:transparent;border:1px solid var(--border2);border-radius:12px;padding:13px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all 0.2s;}
+  .next-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .mult-badge{display:inline-block;background:rgba(255,149,0,0.1);border:1px solid rgba(255,149,0,0.3);color:var(--accent4);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;padding:3px 10px;border-radius:100px;margin-left:8px;vertical-align:middle;}
+  .memory-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:300px;margin:0 auto;}
+  .mem-cell{aspect-ratio:1;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;transition:all 0.18s;user-select:none;}
+  .mem-cell:hover{border-color:var(--border2);transform:scale(1.05);}
+  .mem-cell.revealed{background:var(--card2);border-color:var(--accent3);}
+  .mem-cell.matched{background:rgba(200,255,0,0.08);border-color:var(--accent);}
+  .mem-cell.wrong-flash{background:rgba(255,61,110,0.1);border-color:var(--accent2);}
+  .done-hero{text-align:center;width:100%;margin-bottom:32px;}
+  .done-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;}
+  .done-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(48px,12vw,80px);letter-spacing:-2px;line-height:0.9;color:var(--accent);}
+  .done-score{font-family:'Syne',sans-serif;font-weight:800;font-size:100px;letter-spacing:-4px;color:var(--text);line-height:1;margin:24px 0 4px;}
+  .done-score-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:3px;}
+  .done-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;margin:24px 0;}
+  .done-stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 12px;text-align:center;}
+  .done-stat-val{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:var(--accent3);}
+  .done-stat-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-top:4px;}
+  .return-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:24px 28px;width:100%;text-align:center;}
+  .return-card p{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:2;letter-spacing:0.5px;}
+  .return-card strong{color:var(--accent3);}
+  .spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:40px auto;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- LOADING -->
+  <div class="screen active" id="screen-loading">
+    <div style="text-align:center;">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:36px;letter-spacing:-1px;">Gym<span style="color:var(--accent)">Brain</span></div>
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- AUTH -->
+  <div class="screen" id="screen-auth">
+    <div class="logo-mark">Gym<span>Brain</span></div>
+    <div class="logo-tagline">Train your mind · One session a day</div>
+    <div class="auth-card">
+      <div class="auth-title" id="auth-title">Create your account</div>
+      <div class="auth-sub" id="auth-sub">Free for 30 days · No card required</div>
+
+      <button class="google-btn" id="google-btn" onclick="signInWithGoogle()">
+        <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Continue with Google
+      </button>
+
+      <div class="or-divider"><span class="or-text">or continue with email</span></div>
+
+      <label class="field-label">Email</label>
+      <input class="field-input" type="email" id="auth-email" placeholder="you@example.com"/>
+      <label class="field-label">Password</label>
+      <input class="field-input" type="password" id="auth-password" placeholder="Min 6 characters"/>
+      <button class="primary-btn" id="auth-btn" onclick="handleEmailAuth()">CREATE ACCOUNT</button>
+      <div class="msg" id="auth-msg"></div>
+    </div>
+    <div class="auth-toggle">
+      <span id="auth-toggle-text">Already have an account?</span>
+      <a onclick="toggleAuthMode()"> <span id="auth-toggle-link">Sign in instead</span></a>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen" id="screen-home">
+    <div class="home-header">
+      <div class="home-logo">Gym<span>Brain</span></div>
+      <div class="user-pill" id="user-pill" onclick="signOut()">sign out</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-val" id="h-streak">0</div><div class="stat-lbl">🔥 Streak</div></div>
+      <div class="stat-card"><div class="stat-val" id="h-best">0</div><div class="stat-lbl">🏆 Best</div></div>
+      <div class="stat-card"><div class="stat-val" id="h-sessions">0</div><div class="stat-lbl">📅 Sessions</div></div>
+    </div>
+    <div class="date-card">
+      <div class="date-info">
+        <div class="day" id="h-day">—</div>
+        <div class="date" id="h-date">—</div>
+      </div>
+      <div class="puzzle-types" id="h-types"></div>
+    </div>
+    <div class="mode-label">Choose your session</div>
+    <div class="mode-grid">
+      <div class="mode-btn" onclick="selectMode(15)" id="mode-15"><div class="mode-icon">⚡</div><div class="mode-time">15</div><div class="mode-unit">min</div><div class="mode-mult">1× pts</div></div>
+      <div class="mode-btn" onclick="selectMode(30)" id="mode-30"><div class="mode-icon">🔥</div><div class="mode-time">30</div><div class="mode-unit">min</div><div class="mode-mult">1.5× pts</div></div>
+      <div class="mode-btn selected" onclick="selectMode(45)" id="mode-45"><div class="mode-icon">💪</div><div class="mode-time">45</div><div class="mode-unit">min</div><div class="mode-mult">1.75× pts</div></div>
+      <div class="mode-btn" onclick="selectMode(60)" id="mode-60"><div class="mode-icon">🏆</div><div class="mode-time">60</div><div class="mode-unit">min</div><div class="mode-mult">2× pts</div></div>
+    </div>
+    <button class="primary-btn" id="begin-btn" onclick="beginSession()">BEGIN SESSION</button>
+    <div class="cooldown-card" id="cooldown-card" style="display:none;">
+      <div class="cooldown-title">✓ Session Complete</div>
+      <div class="cooldown-sub" id="cooldown-text">—</div>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div class="screen" id="screen-game">
+    <div class="hud">
+      <div><div class="hud-lbl">Time Left</div><div class="hud-timer" id="g-timer">00:00</div></div>
+      <div class="hud-right"><div class="hud-lbl">Score</div><div class="hud-score-val" id="g-score">0</div></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="g-progress"></div></div>
+    <div class="type-tag" id="g-type">—</div>
+    <div id="g-puzzle-area" style="width:100%;"></div>
+  </div>
+
+  <!-- DONE -->
+  <div class="screen" id="screen-done">
+    <div class="done-hero">
+      <div class="done-eyebrow">Session Complete</div>
+      <div class="done-title">WELL<br>DONE.</div>
+      <div class="done-score" id="d-score">0</div>
+      <div class="done-score-label">POINTS EARNED</div>
+    </div>
+    <div class="done-stats">
+      <div class="done-stat"><div class="done-stat-val" id="d-correct">0</div><div class="done-stat-lbl">Correct</div></div>
+      <div class="done-stat"><div class="done-stat-val" id="d-puzzles">0</div><div class="done-stat-lbl">Puzzles</div></div>
+      <div class="done-stat"><div class="done-stat-val" id="d-accuracy">0%</div><div class="done-stat-lbl">Accuracy</div></div>
+    </div>
+    <div class="return-card">
+      <p>Your brain has done its work for today.<br>Come back <strong>tomorrow</strong> for a new session.<br>Rest. Consolidate. See you then.</p>
+    </div>
+    <button class="primary-btn" style="margin-top:20px;" onclick="showScreen('screen-home');loadHome();">Back to Home</button>
+  </div>
+
+</div>
+<script>
+const SUPABASE_URL='https://tjusrivwreqfjyhkenfr.supabase.co';
+const SUPABASE_KEY='sb_publishable_nxURZvhdvJZMw6JPxpyAww_cSgMnVXH';
+const {createClient}=supabase;
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let currentUser=null,selectedMode=45,sessionSeconds=0,timerInterval=null;
+let totalSeconds=0,score=0,puzzlesCompleted=0,correctCount=0,multiplier=1;
+let puzzleQueue=[],puzzleIndex=0,currentSessionId=null,isAuthSignup=true;
+const multipliers={15:1,30:1.5,45:1.75,60:2};
+
+async function init(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(session?.user){currentUser=session.user;await ensureProfile();await loadHome();showScreen('screen-home');}
+  else showScreen('screen-auth');
+  sb.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='SIGNED_IN'&&session?.user){currentUser=session.user;await ensureProfile();await loadHome();showScreen('screen-home');}
+    if(event==='SIGNED_OUT'){currentUser=null;showScreen('screen-auth');}
+  });
+}
+
+async function ensureProfile(){
+  if(!currentUser)return;
+  const {data}=await sb.from('profiles').select('id').eq('id',currentUser.id).single();
+  if(!data)await sb.from('profiles').insert({id:currentUser.id,email:currentUser.email});
+}
+
+async function signInWithGoogle(){
+  const btn=document.getElementById('google-btn');
+  btn.disabled=true;btn.textContent='Redirecting to Google...';
+  const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});
+  if(error){showMsg('auth-msg',error.message,'error');btn.disabled=false;btn.innerHTML=googleBtnHTML();}
+}
+
+function googleBtnHTML(){
+  return `<svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Continue with Google`;
+}
+
+function toggleAuthMode(){
+  isAuthSignup=!isAuthSignup;
+  document.getElementById('auth-title').textContent=isAuthSignup?'Create your account':'Welcome back';
+  document.getElementById('auth-sub').textContent=isAuthSignup?'Free for 30 days · No card required':'Sign in to continue your streak';
+  document.getElementById('auth-btn').textContent=isAuthSignup?'CREATE ACCOUNT':'SIGN IN';
+  document.getElementById('auth-toggle-text').textContent=isAuthSignup?'Already have an account?':"Don't have an account?";
+  document.getElementById('auth-toggle-link').textContent=isAuthSignup?'Sign in instead':'Create one';
+  clearMsg('auth-msg');
+}
+
+async function handleEmailAuth(){
+  const email=document.getElementById('auth-email').value.trim();
+  const password=document.getElementById('auth-password').value;
+  const btn=document.getElementById('auth-btn');
+  if(!email||!password){showMsg('auth-msg','Please fill in both fields.','error');return;}
+  btn.disabled=true;btn.textContent='Please wait...';
+  const result=isAuthSignup?await sb.auth.signUp({email,password}):await sb.auth.signInWithPassword({email,password});
+  btn.disabled=false;btn.textContent=isAuthSignup?'CREATE ACCOUNT':'SIGN IN';
+  if(result.error){showMsg('auth-msg',result.error.message,'error');return;}
+  if(isAuthSignup&&!result.data.session){showMsg('auth-msg','✓ Check your email to confirm your account, then sign in.','success');return;}
+  currentUser=result.data.user||result.data.session?.user;
+  await ensureProfile();await loadHome();showScreen('screen-home');
+}
+
+async function signOut(){clearInterval(timerInterval);await sb.auth.signOut();}
+
+async function loadHome(){
+  const d=new Date();
+  document.getElementById('h-day').textContent=d.toLocaleDateString('en-IN',{weekday:'long'}).toUpperCase();
+  document.getElementById('h-date').textContent=d.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}).toUpperCase();
+  const name=currentUser?.user_metadata?.full_name||currentUser?.user_metadata?.name||currentUser?.email?.split('@')[0]||'User';
+  document.getElementById('user-pill').textContent=name+' · sign out';
+  const types=getDayPuzzleTypes();
+  const labels={logic:'🧩 Logic',memory:'🧠 Memory',math:'➕ Math',word:'🔤 Word',sequence:'🔢 Seq',visual:'👁 Visual'};
+  const tc=document.getElementById('h-types');tc.innerHTML='';
+  [...new Set(types)].forEach(t=>{const c=document.createElement('div');c.className='type-chip';c.textContent=labels[t]||t;tc.appendChild(c);});
+  if(!currentUser)return;
+  const{data:profile}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
+  if(profile){document.getElementById('h-streak').textContent=profile.streak||0;document.getElementById('h-best').textContent=profile.best_score||0;document.getElementById('h-sessions').textContent=profile.total_sessions||0;}
+  const today=getTodayStr();
+  const{data:todaySession}=await sb.from('sessions').select('*').eq('user_id',currentUser.id).eq('session_date',today).single();
+  if(todaySession){
+    document.getElementById('begin-btn').disabled=true;document.getElementById('cooldown-card').style.display='block';
+    const nextMidnight=new Date();nextMidnight.setHours(24,0,0,0);
+    const diffMins=Math.round((nextMidnight-new Date())/60000);
+    const hrs=Math.floor(diffMins/60),mins=diffMins%60;
+    document.getElementById('cooldown-text').innerHTML=`You scored <strong>${todaySession.score} pts</strong> today.<br>Next session unlocks in <strong>${hrs}h ${mins}m</strong>.<br>Streak: <strong>${profile?.streak||0} days 🔥</strong>`;
+  }else{document.getElementById('begin-btn').disabled=false;document.getElementById('cooldown-card').style.display='none';}
+}
+
+function selectMode(mins){selectedMode=mins;[15,30,45,60].forEach(m=>{document.getElementById(`mode-${m}`).classList.toggle('selected',m===mins);});}
+
+async function beginSession(){
+  if(!currentUser)return;
+  const today=getTodayStr();
+  const{data:existing}=await sb.from('sessions').select('id').eq('user_id',currentUser.id).eq('session_date',today).single();
+  if(existing){await loadHome();return;}
+  const{data:newSession,error}=await sb.from('sessions').insert({user_id:currentUser.id,session_date:today}).select().single();
+  if(error){alert('Could not start session. Try again.');return;}
+  currentSessionId=newSession.id;
+  totalSeconds=selectedMode*60;sessionSeconds=totalSeconds;multiplier=multipliers[selectedMode];
+  score=0;puzzlesCompleted=0;correctCount=0;
+  const{data:p}=await sb.from('profiles').select('total_sessions,streak,last_streak_day').eq('id',currentUser.id).single();
+  const yesterday=getYesterdayStr();let streak=p?.streak||0;
+  if(p?.last_streak_day===yesterday)streak+=1;else if(p?.last_streak_day!==today)streak=1;
+  await sb.from('profiles').update({total_sessions:(p?.total_sessions||0)+1,streak,last_streak_day:today}).eq('id',currentUser.id);
+  buildQueue();showScreen('screen-game');renderNextPuzzle();startTimer();
+}
+
+function startTimer(){updateTimerDisplay();timerInterval=setInterval(()=>{sessionSeconds--;updateTimerDisplay();if(sessionSeconds<=0)endSession();},1000);}
+
+function updateTimerDisplay(){
+  const m=Math.floor(sessionSeconds/60),s=sessionSeconds%60;
+  const el=document.getElementById('g-timer');
+  el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.classList.toggle('warning',sessionSeconds<=120);
+  const fill=document.getElementById('g-progress');
+  fill.style.width=(sessionSeconds/totalSeconds*100)+'%';
+  fill.style.background=sessionSeconds<=120?'var(--accent2)':'var(--accent)';
+}
+
+async function endSession(){
+  clearInterval(timerInterval);
+  const finalScore=Math.round(score*multiplier);
+  await sb.from('sessions').update({ended_at:new Date().toISOString(),score:finalScore,puzzles_completed:puzzlesCompleted,correct_count:correctCount}).eq('id',currentSessionId);
+  const{data:p}=await sb.from('profiles').select('best_score').eq('id',currentUser.id).single();
+  if(finalScore>(p?.best_score||0))await sb.from('profiles').update({best_score:finalScore}).eq('id',currentUser.id);
+  document.getElementById('d-score').textContent=finalScore;
+  document.getElementById('d-correct').textContent=correctCount;
+  document.getElementById('d-puzzles').textContent=puzzlesCompleted;
+  const acc=puzzlesCompleted>0?Math.round(correctCount/puzzlesCompleted*100):0;
+  document.getElementById('d-accuracy').textContent=acc+'%';
+  showScreen('screen-done');
+}
+
+function getDayPuzzleTypes(){const d=new Date();const seed=d.getDate()+d.getMonth()*31+d.getFullYear();const pool=['logic','memory','math','word','sequence','visual','logic','math','word','sequence'];return seededShuffle([...pool],seed).slice(0,6);}
+
+function buildQueue(){puzzleQueue=[];const types=['logic','math','word','sequence','visual','memory'];for(let i=0;i<300;i++){const t=types[i%types.length];const p=getRandomPuzzle(t);if(p)puzzleQueue.push({...p,puzzleType:t});}puzzleIndex=0;}
+
+function getRandomPuzzle(type){
+  if(type==='logic')return{...logicBank[Math.floor(Math.random()*logicBank.length)]};
+  if(type==='math')return generateMath();
+  if(type==='word')return{...wordBank[Math.floor(Math.random()*wordBank.length)]};
+  if(type==='sequence')return{...seqBank[Math.floor(Math.random()*seqBank.length)]};
+  if(type==='visual')return{...visualBank[Math.floor(Math.random()*visualBank.length)]};
+  if(type==='memory')return generateMemory();
+  return null;
+}
+
+const typeLabels={logic:'🧩 Logic Puzzle',math:'➕ Mental Math',word:'🔤 Word Puzzle',sequence:'🔢 Sequence',visual:'👁 Visual Reasoning',memory:'🧠 Memory Match'};
+
+function renderNextPuzzle(){
+  if(puzzleIndex>=puzzleQueue.length)buildQueue();
+  const p=puzzleQueue[puzzleIndex++];
+  document.getElementById('g-type').textContent=typeLabels[p.puzzleType]||p.puzzleType;
+  const area=document.getElementById('g-puzzle-area');area.innerHTML='';
+  if(p.type==='memory'){renderMemory(p,area);return;}
+  const card=document.createElement('div');card.className='puzzle-card';
+  card.innerHTML=`<div class="puzzle-counter">Puzzle #${puzzlesCompleted+1} <span class="mult-badge">${multiplier}× multiplier</span></div><div class="puzzle-q">${p.q}</div>`;
+  if(p.opts){
+    const grid=document.createElement('div');grid.className='opts-grid';
+    p.opts.forEach((o,i)=>{const btn=document.createElement('button');btn.className='opt-btn';btn.textContent=o;btn.onclick=()=>handleOpt(i,p,card,btn,grid);grid.appendChild(btn);});
+    card.appendChild(grid);
+  }else{
+    const wrap=document.createElement('div');wrap.className='input-wrap';
+    const inp=document.createElement('input');inp.className='ans-input';inp.placeholder='?';inp.autocomplete='off';
+    const sub=document.createElement('button');sub.className='sub-btn';sub.textContent='CHECK ANSWER';
+    sub.onclick=()=>handleInput(inp.value,p,card,inp,sub);
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter')sub.click();});
+    wrap.appendChild(inp);wrap.appendChild(sub);card.appendChild(wrap);
+    setTimeout(()=>inp.focus(),80);
+  }
+  area.appendChild(card);
+}
+
+function handleOpt(idx,p,card,clickedBtn,grid){
+  grid.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+  const ok=idx===p.ans;clickedBtn.classList.add(ok?'correct':'wrong');
+  if(!ok)grid.querySelectorAll('.opt-btn')[p.ans].classList.add('correct');
+  if(ok){score+=10;correctCount++;}puzzlesCompleted++;
+  document.getElementById('g-score').textContent=Math.round(score*multiplier);
+  addFeedback(card,ok,p.explain);addNext(card);
+}
+
+function handleInput(val,p,card,inp,sub){
+  inp.disabled=true;sub.disabled=true;
+  const ok=val.trim().toUpperCase()===String(p.ans).toUpperCase();
+  inp.classList.add(ok?'correct':'wrong');
+  if(ok){score+=10;correctCount++;}puzzlesCompleted++;
+  document.getElementById('g-score').textContent=Math.round(score*multiplier);
+  addFeedback(card,ok,ok?p.explain:`Answer: ${p.ans}. ${p.explain}`);addNext(card);
+}
+
+function addFeedback(card,ok,text){const fb=document.createElement('div');fb.className=`feedback ${ok?'correct':'wrong'}`;fb.textContent=(ok?'✓ ':'✗ ')+text;card.appendChild(fb);}
+function addNext(card){const btn=document.createElement('button');btn.className='next-btn';btn.textContent='→ Next Puzzle';btn.onclick=renderNextPuzzle;card.appendChild(btn);}
+
+function generateMemory(){const emojis=['🌟','🎯','🔥','💡','🎭','🧩','🎲','🌊','🌙','⚡','🎸','🦋','🌺','🚀','🎨','🦁'];const picked=[...emojis].sort(()=>Math.random()-0.5).slice(0,8);const pairs=[...picked,...picked].sort(()=>Math.random()-0.5);return{type:'memory',pairs};}
+
+function renderMemory(p,area){
+  const state={pairs:p.pairs,revealed:[],matched:[],locked:false};
+  const card=document.createElement('div');card.className='puzzle-card';
+  card.innerHTML=`<div class="puzzle-counter">Puzzle #${puzzlesCompleted+1} <span class="mult-badge">${multiplier}× multiplier</span></div><div class="puzzle-q">Match all <strong>8 pairs</strong> of emojis</div>`;
+  const grid=document.createElement('div');grid.className='memory-grid';
+  p.pairs.forEach((emoji,i)=>{const cell=document.createElement('div');cell.className='mem-cell';cell.dataset.i=i;cell.dataset.e=emoji;cell.onclick=()=>memClick(cell,state,grid,card);grid.appendChild(cell);});
+  card.appendChild(grid);area.appendChild(card);
+}
+
+function memClick(cell,state,grid,card){
+  if(state.locked)return;const i=parseInt(cell.dataset.i);
+  if(state.matched.includes(i)||state.revealed.includes(i))return;
+  cell.textContent=cell.dataset.e;cell.classList.add('revealed');state.revealed.push(i);
+  if(state.revealed.length===2){
+    state.locked=true;const[a,b]=state.revealed;const cells=grid.querySelectorAll('.mem-cell');
+    if(cells[a].dataset.e===cells[b].dataset.e){
+      cells[a].classList.replace('revealed','matched');cells[b].classList.replace('revealed','matched');
+      state.matched.push(a,b);state.revealed=[];state.locked=false;
+      score+=5;document.getElementById('g-score').textContent=Math.round(score*multiplier);
+      if(state.matched.length===state.pairs.length){correctCount++;puzzlesCompleted++;addFeedback(card,true,'All pairs matched!');addNext(card);}
+    }else{
+      cells[a].classList.add('wrong-flash');cells[b].classList.add('wrong-flash');
+      setTimeout(()=>{cells[a].textContent='';cells[a].classList.remove('revealed','wrong-flash');cells[b].textContent='';cells[b].classList.remove('revealed','wrong-flash');state.revealed=[];state.locked=false;},800);
+    }
+  }
+}
+
+const logicBank=[
+  {q:"If all Bloops are Razzies, and all Razzies are Lazzies — are all Bloops Lazzies?",opts:["Yes","No","Cannot determine","Only some"],ans:0,explain:"Transitive: Bloops → Razzies → Lazzies."},
+  {q:"A bat and ball cost <strong>₹110</strong>. The bat costs <strong>₹100 more</strong> than the ball. How much is the ball?",opts:["₹10","₹5","₹15","₹100"],ans:1,explain:"Ball=₹5, Bat=₹105. Total=₹110."},
+  {q:"In a race you overtake the person in <strong>2nd place</strong>. What position are you now?",opts:["1st","2nd","3rd","Depends"],ans:1,explain:"You're 2nd — you can't overtake 1st by passing 2nd."},
+  {q:"A lily pad doubles daily. Day 30 it covers the full lake. When was it half covered?",opts:["Day 15","Day 25","Day 29","Day 28"],ans:2,explain:"Day 29 — it doubles once more to fill the lake."},
+  {q:"You have 5 apples. You take away 3. How many do YOU have?",opts:["2","3","5","0"],ans:1,explain:"You took 3 — so you have 3."},
+  {q:"A rooster sits on a roof peak. Which way does the egg roll?",opts:["Left","Right","Downhill","Roosters don't lay eggs"],ans:3,explain:"Roosters are male — they don't lay eggs."},
+  {q:"Which is heavier — a kg of iron or a kg of feathers?",opts:["Iron","Feathers","Same weight","Depends"],ans:2,explain:"Both weigh 1 kg. Equal."},
+];
+
+const wordBank=[
+  {q:"Unscramble: <strong>IBRNA</strong>",type:'input',ans:'BRAIN',explain:"IBRNA → BRAIN"},
+  {q:"Unscramble: <strong>GNIKNITH</strong>",type:'input',ans:'THINKING',explain:"GNIKNITH → THINKING"},
+  {q:"SILENT is an anagram of which word?",opts:["LISTEN","STEEL","TILES","INTEL"],ans:0,explain:"SILENT → LISTEN. Same 6 letters."},
+  {q:"What word is spelled the same forwards and backwards?",opts:["LEVEL","RIVER","PLACE","ORBIT"],ans:0,explain:"LEVEL is a palindrome."},
+  {q:"Unscramble: <strong>YROMEM</strong>",type:'input',ans:'MEMORY',explain:"YROMEM → MEMORY"},
+  {q:"What 5-letter word becomes shorter when you add 2 letters?",opts:["SHORT","SMALL","BRIEF","TINY"],ans:0,explain:"SHORT + ER = SHORTER."},
+  {q:"Which doesn't belong: APPLE, MANGO, CARROT, BANANA?",opts:["Apple","Mango","Carrot","Banana"],ans:2,explain:"Carrot is a vegetable — rest are fruits."},
+];
+
+const seqBank=[
+  {q:"What comes next: <strong>1, 1, 2, 3, 5, 8, ?</strong>",opts:['11','13','14','12'],ans:1,explain:"Fibonacci: 5+8=13"},
+  {q:"Next in: <strong>2, 6, 12, 20, 30, ?</strong>",opts:['40','42','44','38'],ans:1,explain:"n(n+1): 6×7=42"},
+  {q:"Next: <strong>1, 4, 9, 16, 25, ?</strong>",opts:['35','36','37','34'],ans:1,explain:"Perfect squares: 6²=36"},
+  {q:"Next: <strong>3, 9, 27, 81, ?</strong>",opts:['162','240','243','250'],ans:2,explain:"Powers of 3: 3⁵=243"},
+  {q:"Next: <strong>100, 96, 89, 79, 66, ?</strong>",opts:['50','49','51','48'],ans:0,explain:"Differences -4,-7,-10,-13,-16: 66-16=50"},
+  {q:"Next: <strong>A, C, F, J, O, ?</strong>",opts:['T','U','V','S'],ans:1,explain:"Skip 1,2,3,4,5 letters: O+6=U"},
+];
+
+const visualBank=[
+  {q:"How many squares in a standard <strong>3×3</strong> grid?",opts:['9','12','13','14'],ans:3,explain:"9(1×1)+4(2×2)+1(3×3)=14"},
+  {q:"A cube has how many <strong>edges</strong>?",opts:['8','10','12','16'],ans:2,explain:"4 top+4 bottom+4 vertical=12."},
+  {q:"A clock shows <strong>3:15</strong>. Angle between hands?",opts:['0°','7.5°','15°','22.5°'],ans:1,explain:"Minute at 90°, hour at 97.5°. Diff=7.5°"},
+  {q:"How many triangles in a <strong>Star of David</strong>?",opts:['6','8','12','14'],ans:2,explain:"2 large+6 small+4 medium=12."},
+  {q:"Fold square in half twice, cut a corner — how many holes unfolded?",opts:['1','2','4','8'],ans:2,explain:"4 holes — cut repeats in all quadrants."},
+];
+
+function generateMath(){
+  const t=['add','multiply','percent','sequence'][Math.floor(Math.random()*4)];
+  if(t==='add'){const a=Math.floor(Math.random()*900)+100,b=Math.floor(Math.random()*900)+100;return{type:'input',q:`<strong>${a} + ${b}</strong> = ?`,ans:String(a+b),explain:`${a}+${b}=${a+b}`};}
+  if(t==='multiply'){const a=Math.floor(Math.random()*20)+6,b=Math.floor(Math.random()*12)+6;return{type:'input',q:`<strong>${a} × ${b}</strong> = ?`,ans:String(a*b),explain:`${a}×${b}=${a*b}`};}
+  if(t==='percent'){const pcts=[15,20,25,30,40],p=pcts[Math.floor(Math.random()*pcts.length)];const base=(Math.floor(Math.random()*18)+2)*10;return{type:'input',q:`<strong>${p}%</strong> of <strong>${base}</strong> = ?`,ans:String(p*base/100),explain:`${p}/100 × ${base} = ${p*base/100}`};}
+  const s=[2,3,4,5][Math.floor(Math.random()*4)];const seq=[s,s*2,s*4,s*8,s*16];return{type:'input',q:`Next: <strong>${seq.slice(0,4).join(' · ')} · ?</strong>`,ans:String(seq[4]),explain:`Each doubles: ${seq[3]}×2=${seq[4]}`};
+}
+
+function getTodayStr(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function getYesterdayStr(){const d=new Date();d.setDate(d.getDate()-1);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function seededShuffle(arr,seed){let s=seed;const rng=()=>{s=(s*1664525+1013904223)&0xffffffff;return(s>>>0)/0xffffffff;};for(let i=arr.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function showMsg(id,text,type){const el=document.getElementById(id);el.textContent=text;el.className=`msg ${type}`;}
+function clearMsg(id){const el=document.getElementById(id);el.className='msg';el.textContent='';}
+
+init();
+</script>
+</body>
+</html>
