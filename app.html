@@ -1057,20 +1057,47 @@ function closeAbandonModal(){
 
 function changeSessionMode(newMins){
   document.getElementById('abandon-modal').classList.remove('active');
-  const newSeconds=newMins*60;
-  if(newSeconds<sessionSeconds){
-    // Switching to shorter — set remaining time to new mode max if over
-    sessionSeconds=Math.min(sessionSeconds,newSeconds);
+
+  const currentRemaining=sessionSeconds;
+  const newTotalSeconds=newMins*60;
+
+  if(newMins<selectedMode){
+    // Switching to shorter mode
+    // If remaining time exceeds new mode duration — cap it
+    sessionSeconds=Math.min(currentRemaining, newTotalSeconds);
   } else {
-    // Switching to longer — add the difference
-    sessionSeconds=sessionSeconds+(newMins-selectedMode)*60;
+    // Switching to longer mode — add the extra time
+    const addedSeconds=(newMins-selectedMode)*60;
+    sessionSeconds=currentRemaining+addedSeconds;
   }
+
+  // Update multiplier badge in HUD
   selectedMode=newMins;
   multiplier=multipliers[newMins];
-  totalSeconds=newMins*60;
+  totalSeconds=newTotalSeconds;
+
+  // Update score display with new multiplier
+  document.getElementById('g-score').textContent=Math.round(score*multiplier);
+
+  // Update timer display immediately
   updateTimerDisplay();
-  // Resume timer
-  if(sessionActive&&!timerInterval){
+
+  // Show brief confirmation in HUD
+  const typeTag=document.getElementById('g-type');
+  const original=typeTag.textContent;
+  typeTag.textContent=`✓ Changed to ${newMins} min · ${multiplier}× pts`;
+  typeTag.style.color='var(--accent)';
+  typeTag.style.borderColor='var(--accent)';
+  setTimeout(()=>{
+    typeTag.textContent=original;
+    typeTag.style.color='';
+    typeTag.style.borderColor='';
+  },2000);
+
+  // Restart timer
+  clearInterval(timerInterval);
+  timerInterval=null;
+  if(sessionActive&&sessionSeconds>0){
     timerInterval=setInterval(timerTick,1000);
   }
 }
