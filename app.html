@@ -293,6 +293,39 @@
     </div>
   </div>
 
+  <!-- WELCOME (first session only) -->
+  <div class="screen" id="screen-welcome">
+    <div style="width:100%;text-align:center;padding:20px 0;">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:48px;letter-spacing:-2px;color:var(--text);">Gym<span style="color:var(--accent)">Brain</span></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:3px;margin-top:8px;">YOUR FIRST SESSION</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:32px 28px;width:100%;margin-top:16px;">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.5px;margin-bottom:24px;">Here's how it works</div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div style="display:flex;gap:16px;align-items:flex-start;">
+          <div style="width:36px;height:36px;background:rgba(200,255,0,0.1);border:1px solid rgba(200,255,0,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🧩</div>
+          <div><div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:3px;">6 types of brain puzzles</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.6;">Logic · Math · Memory · Word · Visual · Sequence. They rotate — never the same type twice in a row.</div></div>
+        </div>
+        <div style="display:flex;gap:16px;align-items:flex-start;">
+          <div style="width:36px;height:36px;background:rgba(200,255,0,0.1);border:1px solid rgba(200,255,0,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">⏱</div>
+          <div><div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:3px;">Timer counts down</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.6;">Solve as many puzzles as you can before time runs out. Every correct answer scores points.</div></div>
+        </div>
+        <div style="display:flex;gap:16px;align-items:flex-start;">
+          <div style="width:36px;height:36px;background:rgba(200,255,0,0.1);border:1px solid rgba(200,255,0,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🔒</div>
+          <div><div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:3px;">Locks after your session</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.6;">One session per day. When time's up it locks. Your brain consolidates during rest — come back tomorrow stronger.</div></div>
+        </div>
+        <div style="display:flex;gap:16px;align-items:flex-start;">
+          <div style="width:36px;height:36px;background:rgba(200,255,0,0.1);border:1px solid rgba(200,255,0,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">📈</div>
+          <div><div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:3px;">Gets harder as you improve</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.6;">Difficulty adapts in real time. Puzzles you struggle with come back more often. Your weak areas get more reps.</div></div>
+        </div>
+      </div>
+    </div>
+    <button onclick="startSessionFromWelcome()" style="width:100%;margin-top:20px;background:var(--accent);color:#080810;border:none;border-radius:12px;padding:18px;font-family:'Syne',sans-serif;font-weight:700;font-size:18px;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+      Let's Train 🧠
+    </button>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-align:center;margin-top:12px;letter-spacing:1px;">Tap ⚙ Session anytime to pause, change duration, or exit</div>
+  </div>
+
   <!-- GAME -->
   <div class="screen" id="screen-game">
     <div class="hud">
@@ -599,6 +632,19 @@ async function beginSession(){
 
   buildSmartQueue();
   sessionStorage.setItem('gb_active_session',JSON.stringify({mode:selectedMode,seconds:totalSeconds,multiplier,startedAt:Date.now()}));
+
+  // Show welcome screen for very first session
+  const isFirstSession=!(await sb.from('sessions').select('id').eq('user_id',currentUser.id).limit(1)).data?.length;
+  if(isFirstSession){
+    showScreen('screen-welcome');
+  } else {
+    showScreen('screen-game');
+    startTimer();
+    renderNextPuzzle();
+  }
+}
+
+function startSessionFromWelcome(){
   showScreen('screen-game');
   startTimer();
   renderNextPuzzle();
@@ -666,51 +712,93 @@ async function confirmSession(){
 
 function buildSmartQueue(){
   if(!allPuzzles||allPuzzles.length===0)return;
-  const seenInSession=new Set();
-  sessionQueue=[];
-  const scoredPuzzles=allPuzzles.map(p=>{
-    const h=userHistory[p.id];
-    let priority=0;
-    if(!h){priority=50;}
-    else{
-      const acc=h.times_seen>0?h.times_correct/h.times_seen:0;
-      if(acc<0.5)priority=100;
-      else if(acc<0.8)priority=70;
-      else priority=20;
-    }
-    const typeAcc=weakAreas[p.type]?.total>0?weakAreas[p.type].correct/weakAreas[p.type].total:0.5;
-    if(typeAcc<0.6)priority+=30;
-    if(p.difficulty===currentDifficulty)priority+=20;
-    else if(Math.abs(p.difficulty-currentDifficulty)===1)priority+=5;
-    else priority-=10;
-    return{...p,priority};
-  });
-  scoredPuzzles.sort((a,b)=>b.priority-a.priority||(Math.random()-0.5));
-  const typeQueues={};
-  TYPES.forEach(t=>{typeQueues[t]=scoredPuzzles.filter(p=>p.type===t);});
-  const typePointers={};TYPES.forEach(t=>{typePointers[t]=0;});
-  let lastUsedType=null,attempts=0;
-  while(sessionQueue.length<200&&attempts<2000){
-    attempts++;
-    const availableTypes=TYPES.filter(t=>t!==lastUsedType&&typePointers[t]<typeQueues[t].length);
-    if(availableTypes.length===0)break;
-    const weights=availableTypes.map(t=>{
-      const acc=weakAreas[t]?.total>0?weakAreas[t].correct/weakAreas[t].total:0.5;
-      return Math.max(0.1,1-acc+0.5);
+
+  const seenInSession=new Set(sessionQueue.map(p=>p.id));
+  const newQueue=[];
+
+  // ── Score and sort each puzzle ──
+  const scored=allPuzzles
+    .filter(p=>!seenInSession.has(p.id)) // never repeat in session
+    .map(p=>{
+      const h=userHistory[p.id];
+      let priority=0;
+      if(!h) priority=60; // unseen = high priority
+      else{
+        const acc=h.times_seen>0?h.times_correct/h.times_seen:0;
+        if(acc<0.5) priority=100; // got wrong = highest priority
+        else if(acc<0.8) priority=70;
+        else priority=10; // mastered = show less
+      }
+      // Difficulty match bonus
+      if(p.difficulty===currentDifficulty) priority+=15;
+      else if(Math.abs(p.difficulty-currentDifficulty)===1) priority+=5;
+      else priority-=5;
+      return{...p,priority};
     });
-    const total=weights.reduce((a,b)=>a+b,0);
-    let rand=Math.random()*total;
-    let chosenType=availableTypes[0];
-    for(let i=0;i<availableTypes.length;i++){rand-=weights[i];if(rand<=0){chosenType=availableTypes[i];break;}}
-    const puzzle=typeQueues[chosenType][typePointers[chosenType]];
-    typePointers[chosenType]++;
-    if(!seenInSession.has(puzzle.id)){
-      seenInSession.add(puzzle.id);
-      sessionQueue.push(puzzle);
-      lastUsedType=chosenType;
+
+  // ── Build per-type pools, sorted by priority ──
+  const pools={};
+  TYPES.forEach(t=>{
+    pools[t]=scored
+      .filter(p=>p.type===t)
+      .sort((a,b)=>b.priority-a.priority+(Math.random()-0.5)*20);
+  });
+
+  const ptrs={};TYPES.forEach(t=>{ptrs[t]=0;});
+
+  // ── STRICT INTERLEAVING with equal distribution ──
+  // Each "round" picks one puzzle from each type in shuffled order
+  // Math is capped at max 1 per 6 puzzles (same as others — no flooding)
+  const totalTarget=200;
+  let round=0;
+
+  while(newQueue.length<totalTarget){
+    // Shuffle type order each round for variety
+    const roundTypes=[...TYPES].sort(()=>Math.random()-0.5);
+    let addedThisRound=0;
+
+    for(const t of roundTypes){
+      if(newQueue.length>=totalTarget) break;
+      if(ptrs[t]>=pools[t].length) continue; // exhausted this type
+
+      const puzzle=pools[t][ptrs[t]];
+      ptrs[t]++;
+
+      // Never same type twice in a row
+      if(newQueue.length>0&&newQueue[newQueue.length-1].type===t) continue;
+
+      newQueue.push(puzzle);
+      addedThisRound++;
+    }
+
+    round++;
+    // If all types exhausted or no progress — stop
+    if(addedThisRound===0) break;
+    if(round>50) break;
+  }
+
+  // ── Force first puzzle to be EASY (difficulty 1) ──
+  // Find first easy puzzle from any type
+  if(newQueue.length>0&&newQueue[0].difficulty!==1){
+    const easyIdx=newQueue.findIndex(p=>p.difficulty===1);
+    if(easyIdx>0){
+      const easy=newQueue.splice(easyIdx,1)[0];
+      newQueue.unshift(easy);
     }
   }
-  queueIndex=0;
+
+  // ── If session queue already has items (rebuild), append ──
+  if(sessionQueue.length===0){
+    sessionQueue=newQueue;
+  } else {
+    sessionQueue=[...sessionQueue,...newQueue];
+  }
+  queueIndex=queueIndex||0;
+
+  // Log distribution for debugging
+  const dist={};
+  newQueue.forEach(p=>{dist[p.type]=(dist[p.type]||0)+1;});
+  console.log('Queue built:',newQueue.length,'puzzles. Distribution:',dist);
 }
 
 // ============================================================
