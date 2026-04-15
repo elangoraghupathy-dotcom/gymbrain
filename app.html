@@ -305,6 +305,7 @@ let currentUser=null,selectedMode=45,sessionSeconds=0,timerInterval=null;
 let totalSeconds=0,score=0,puzzlesCompleted=0,correctCount=0,multiplier=1;
 let sessionQueue=[],queueIndex=0,currentSessionId=null,isAuthSignup=true;
 let sessionHistory=[]; // {puzzle_id, type, correct, start_time}
+let sessionActive=false;
 let puzzleStartTime=null;
 let userHistory={}; // puzzle_id -> history record
 let allPuzzles=[]; // all puzzles from DB
@@ -643,19 +644,21 @@ function buildSmartQueue(){
 // TIMER
 // ============================================================
 function startTimer(){
+  sessionActive=true;
   updateTimerDisplay();
   timerInterval=setInterval(()=>{
     sessionSeconds--;
     updateTimerDisplay();
-
-    // Adaptive difficulty: if accuracy > 80% for 10 puzzles, increase difficulty
     if(puzzlesCompleted>0&&puzzlesCompleted%10===0){
       const recentAcc=correctCount/puzzlesCompleted;
       if(recentAcc>0.8&&currentDifficulty<3)currentDifficulty++;
       else if(recentAcc<0.5&&currentDifficulty>1)currentDifficulty--;
     }
-
-    if(sessionSeconds<=0)endSession();
+    if(sessionSeconds<=0){
+      clearInterval(timerInterval);
+      sessionActive=false;
+      endSession();
+    }
   },1000);
 }
 
@@ -673,6 +676,7 @@ function updateTimerDisplay(){
 // PUZZLE RENDERING
 // ============================================================
 function renderNextPuzzle(){
+  if(!sessionActive)return;
   if(queueIndex>=sessionQueue.length){
     // Rebuild with remaining unseen puzzles
     buildSmartQueue();
@@ -817,10 +821,11 @@ function addFeedback(card,ok,text){
 }
 
 function addNext(card){
+  if(!sessionActive)return;
   const btn=document.createElement('button');
   btn.className='next-btn';
   btn.textContent='→ Next Puzzle';
-  btn.onclick=renderNextPuzzle;
+  btn.onclick=()=>{if(sessionActive)renderNextPuzzle();};
   card.appendChild(btn);
 }
 
