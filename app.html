@@ -612,25 +612,38 @@ async function confirmSession(){
   const yesterday=getYesterdayStr();
   const isAdminUser=currentUser?.email===ADMIN_EMAIL;
 
-  if(isAdminUser){
-    // Admin: delete any existing session for today first, then create fresh
-    await sb.from('sessions').delete().eq('user_id',currentUser.id).eq('session_date',today);
-  }
+  // Check if a session already exists for today
+  const{data:existing}=await sb.from('sessions')
+    .select('id').eq('user_id',currentUser.id).eq('session_date',today).single();
 
-  // Create fresh session record
-  const{data:newSession,error}=await sb.from('sessions')
-    .insert({user_id:currentUser.id,session_date:today})
-    .select().single();
-
-  if(error){
-    // Non-admin fallback: session already exists, fetch it
-    const{data:existing}=await sb.from('sessions')
-      .select('id').eq('user_id',currentUser.id).eq('session_date',today).single();
-    if(existing)currentSessionId=existing.id;
-    console.warn('Session insert failed, using existing:',error.message);
+  if(existing){
+    if(isAdminUser){
+      // Admin replaying — reset the existing session record to fresh state
+      await sb.from('sessions').update({
+        started_at:new Date().toISOString(),
+        ended_at:null,
+        score:0,
+        puzzles_completed:0,
+        correct_count:0
+      }).eq('id',existing.id);
+      currentSessionId=existing.id;
+      console.log('Admin: session reset for replay. ID:',currentSessionId);
+    } else {
+      // Regular user — use existing session
+      currentSessionId=existing.id;
+      console.log('Using existing session:',currentSessionId);
+    }
   } else {
+    // No session today — create fresh one
+    const{data:newSession,error}=await sb.from('sessions')
+      .insert({user_id:currentUser.id,session_date:today})
+      .select().single();
+    if(error){
+      console.error('Session insert failed:',error.message);
+      return;
+    }
     currentSessionId=newSession.id;
-    console.log('Session created:',currentSessionId);
+    console.log('New session created:',currentSessionId);
   }
 
   // Update profile streak + session count
