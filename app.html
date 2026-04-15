@@ -215,6 +215,49 @@
   .appreciation-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center;letter-spacing:1px;line-height:1.8;animation:fade-up 0.5s ease 0.5s both;}
   @keyframes fade-up{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
   .loading-text{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-align:center;margin-top:8px;}
+
+  /* STREAK VISUALIZATION */
+  .streak-visual{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:20px 24px;width:100%;margin-top:16px;}
+  .streak-visual-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;}
+  .streak-dots{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+  .streak-dot{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;border:1px solid var(--border);transition:all 0.3s;}
+  .streak-dot.done{background:rgba(200,255,0,0.12);border-color:var(--accent);}
+  .streak-dot.today{background:var(--accent);border-color:var(--accent);animation:pulse-dot 1.5s ease infinite;}
+  .streak-dot.empty{background:var(--surface);border-color:var(--border);}
+  @keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 rgba(200,255,0,0.4);}50%{box-shadow:0 0 0 8px rgba(200,255,0,0);}}
+  .streak-loss-warn{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent2);text-align:center;margin-top:12px;line-height:1.7;letter-spacing:0.5px;}
+  .streak-loss-warn strong{color:var(--accent2);}
+
+  /* TOMORROW PREVIEW */
+  .tomorrow-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:20px 24px;width:100%;margin-top:16px;}
+  .tomorrow-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;}
+  .tomorrow-content{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;}
+  .tomorrow-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.7;letter-spacing:0.5px;}
+  .tomorrow-sub strong{color:var(--accent3);}
+
+  /* PERSONAL BEST */
+  .pb-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:20px 24px;width:100%;margin-top:16px;display:flex;justify-content:space-between;align-items:center;}
+  .pb-left .pb-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+  .pb-left .pb-val{font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:var(--accent);letter-spacing:-1px;margin-top:2px;}
+  .pb-right{text-align:right;}
+  .pb-right .pb-gap{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent4);letter-spacing:0.5px;}
+  .pb-right .pb-best{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:0.5px;}
+  .pb-new-record{background:rgba(200,255,0,0.1);border:1px solid rgba(200,255,0,0.3);border-radius:8px;padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:1px;text-align:center;}
+
+  /* SHARE BUTTONS */
+  .share-section{width:100%;margin-top:16px;}
+  .share-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;text-align:center;}
+  .share-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;}
+  .share-btn{border:none;border-radius:12px;padding:12px 8px;cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;}
+  .share-btn:hover{transform:translateY(-2px);}
+  .share-btn .share-icon{font-size:20px;}
+  .share-btn.whatsapp{background:rgba(37,211,102,0.1);border:1px solid rgba(37,211,102,0.3);color:#25d366;}
+  .share-btn.linkedin{background:rgba(0,119,181,0.1);border:1px solid rgba(0,119,181,0.3);color:#0077b5;}
+  .share-btn.twitter{background:rgba(29,161,242,0.1);border:1px solid rgba(29,161,242,0.3);color:#1da1f2;}
+  .share-btn.facebook{background:rgba(24,119,242,0.1);border:1px solid rgba(24,119,242,0.3);color:#1877f2;}
+  .share-btn.instagram{background:rgba(225,48,108,0.1);border:1px solid rgba(225,48,108,0.3);color:#e1306c;}
+  .share-btn.copy{background:rgba(200,255,0,0.08);border:1px solid rgba(200,255,0,0.2);color:var(--accent);}
+  .share-grid-2{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
 </style>
 </head>
 <body>
@@ -361,26 +404,84 @@
 
   <!-- DONE -->
   <div class="screen" id="screen-done">
+
+    <!-- CROWN + APPRECIATION -->
     <div class="crown-badge" id="crown-badge">🏆</div>
     <div class="appreciation-msg" id="appreciation-msg">Well Done!</div>
     <div class="appreciation-sub" id="appreciation-sub">Your brain worked hard today.</div>
 
+    <!-- SCORE -->
     <div class="done-hero" style="margin-top:16px;">
       <div class="done-score" id="d-score">0</div>
       <div class="done-score-label">POINTS EARNED</div>
     </div>
+
+    <!-- STATS -->
     <div class="done-stats">
       <div class="done-stat"><div class="done-stat-val" id="d-correct">0</div><div class="done-stat-lbl">Correct</div></div>
       <div class="done-stat"><div class="done-stat-val" id="d-puzzles">0</div><div class="done-stat-lbl">Puzzles</div></div>
       <div class="done-stat"><div class="done-stat-val" id="d-accuracy">0%</div><div class="done-stat-lbl">Accuracy</div></div>
     </div>
+
+    <!-- PERSONAL BEST -->
+    <div class="pb-card" id="pb-card">
+      <div class="pb-left">
+        <div class="pb-label">Today's Score</div>
+        <div class="pb-val" id="pb-today">0</div>
+      </div>
+      <div class="pb-right" id="pb-right">
+        <div class="pb-gap" id="pb-gap">—</div>
+        <div class="pb-best" id="pb-best">—</div>
+      </div>
+    </div>
+
+    <!-- STREAK VISUALIZATION -->
+    <div class="streak-visual">
+      <div class="streak-visual-title">Your Week</div>
+      <div class="streak-dots" id="streak-dots"></div>
+      <div class="streak-loss-warn" id="streak-warn"></div>
+    </div>
+
+    <!-- TOMORROW PREVIEW -->
+    <div class="tomorrow-card">
+      <div class="tomorrow-title">Tomorrow's Focus</div>
+      <div class="tomorrow-content" id="tomorrow-content">—</div>
+      <div class="tomorrow-sub" id="tomorrow-sub">—</div>
+    </div>
+
+    <!-- SESSION INSIGHTS -->
     <div class="insight-card">
       <div class="insight-title">Session Insights</div>
       <div id="done-insights"></div>
     </div>
-    <div class="return-card">
-      <p>Your brain has done its work for today.<br>Come back <strong>tomorrow</strong> for a new session.<br>Rest. Consolidate. See you then.</p>
+
+    <!-- SHARE -->
+    <div class="share-section">
+      <div class="share-title">Share your score</div>
+      <div class="share-grid">
+        <button class="share-btn whatsapp" onclick="shareScore('whatsapp')">
+          <span class="share-icon">💬</span>WhatsApp
+        </button>
+        <button class="share-btn linkedin" onclick="shareScore('linkedin')">
+          <span class="share-icon">💼</span>LinkedIn
+        </button>
+        <button class="share-btn twitter" onclick="shareScore('twitter')">
+          <span class="share-icon">🐦</span>X / Twitter
+        </button>
+      </div>
+      <div class="share-grid-2">
+        <button class="share-btn facebook" onclick="shareScore('facebook')">
+          <span class="share-icon">📘</span>Facebook
+        </button>
+        <button class="share-btn instagram" onclick="shareScore('instagram')">
+          <span class="share-icon">📸</span>Instagram
+        </button>
+        <button class="share-btn copy" onclick="shareScore('copy')" id="copy-btn">
+          <span class="share-icon">📋</span>Copy Text
+        </button>
+      </div>
     </div>
+
     <button class="primary-btn" style="margin-top:20px;" onclick="showScreen('screen-home');loadHome();">Back to Home</button>
   </div>
 
@@ -1075,6 +1176,8 @@ async function endSession(){
   renderSessionInsights();
   launchCelebration(finalScore,acc);
   showScreen('screen-done');
+  // Populate all done screen sections
+  populateDoneScreen(finalScore,acc);
 
   // Save to DB in background — non-blocking
   if(sessionConfirmed&&currentSessionId){
@@ -1147,6 +1250,164 @@ function launchCelebration(finalScore, acc){
 
   // Clear confetti after animation
   setTimeout(()=>{overlay.innerHTML='';},5000);
+}
+
+async function populateDoneScreen(finalScore, acc){
+  // Personal best
+  let prevBest=0;
+  if(currentUser){
+    const{data:pr}=await sb.from('profiles').select('best_score,streak').eq('id',currentUser.id).single();
+    prevBest=pr?.best_score||0;
+    const streak=pr?.streak||1;
+    renderStreakDots(streak);
+    renderPersonalBest(finalScore, prevBest);
+  }
+  renderTomorrowPreview();
+}
+
+// ============================================================
+// DONE SCREEN ENHANCEMENTS
+// ============================================================
+
+function renderPersonalBest(finalScore, prevBest){
+  document.getElementById('pb-today').textContent=finalScore;
+  const pbRight=document.getElementById('pb-right');
+  if(finalScore>prevBest&&prevBest>0){
+    pbRight.innerHTML=`<div class="pb-new-record">🏆 NEW PERSONAL BEST!</div>`;
+  } else if(prevBest>0){
+    const gap=prevBest-finalScore;
+    document.getElementById('pb-gap').textContent=`${gap} pts behind your best`;
+    document.getElementById('pb-best').textContent=`Personal best: ${prevBest} pts`;
+  } else {
+    document.getElementById('pb-gap').textContent='First session complete!';
+    document.getElementById('pb-best').textContent='This is your first score';
+  }
+}
+
+function renderStreakDots(streak){
+  const container=document.getElementById('streak-dots');
+  container.innerHTML='';
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const today=new Date().getDay();
+  // 0=Sun, convert to Mon-based
+  const todayIdx=today===0?6:today-1;
+
+  for(let i=0;i<7;i++){
+    const dot=document.createElement('div');
+    const isPast=i<todayIdx;
+    const isToday=i===todayIdx;
+    const isInStreak=i>=(todayIdx-streak+1)&&i<=todayIdx;
+
+    if(isToday){
+      dot.className='streak-dot today';
+      dot.textContent='🔥';
+    } else if(isInStreak&&isPast){
+      dot.className='streak-dot done';
+      dot.textContent='✓';
+    } else {
+      dot.className='streak-dot empty';
+      dot.textContent=days[i][0];
+    }
+    dot.title=days[i];
+    container.appendChild(dot);
+  }
+
+  // Streak loss warning
+  const warn=document.getElementById('streak-warn');
+  if(streak>=3){
+    warn.innerHTML=`Don't break your <strong>${streak}-day streak</strong>. Come back tomorrow to keep it alive. 🔒`;
+  } else if(streak===1){
+    warn.innerHTML=`Day 1 complete. Come back tomorrow to start your streak. 💪`;
+  } else {
+    warn.innerHTML='';
+  }
+}
+
+function renderTomorrowPreview(){
+  const tContent=document.getElementById('tomorrow-content');
+  const tSub=document.getElementById('tomorrow-sub');
+
+  // Find weakest type from this session
+  let weakest=null;
+  let weakestAcc=1;
+  Object.keys(weakAreas).forEach(t=>{
+    if(weakAreas[t].total>0){
+      const acc=weakAreas[t].correct/weakAreas[t].total;
+      if(acc<weakestAcc){weakestAcc=acc;weakest=t;}
+    }
+  });
+
+  const typeNames={logic:'Logic',math:'Mental Math',word:'Word',sequence:'Sequences',visual:'Visual Reasoning',memory:'Memory'};
+  const typeEmojis={logic:'🧩',math:'➕',word:'🔤',sequence:'🔢',visual:'👁',memory:'🧠'};
+
+  if(weakest&&weakestAcc<0.8){
+    const pct=Math.round(weakestAcc*100);
+    tContent.textContent=`${typeEmojis[weakest]} Focus: ${typeNames[weakest]}`;
+    tSub.innerHTML=`Your ${typeNames[weakest]} accuracy was <strong>${pct}%</strong> today.<br>Tomorrow we load more ${typeNames[weakest]} puzzles — get ready.`;
+  } else {
+    tContent.textContent='🎯 Full Brain Workout';
+    tSub.innerHTML=`Great balance today. Tomorrow brings fresh puzzles across all 6 types.<br>Difficulty increases as you improve.`;
+  }
+}
+
+function shareScore(platform){
+  const finalScore=parseInt(document.getElementById('d-score').textContent)||0;
+  const accuracy=document.getElementById('d-accuracy').textContent||'0%';
+  const puzzles=document.getElementById('d-puzzles').textContent||'0';
+  const streak=parseInt(document.getElementById('h-streak').textContent)||
+                parseInt(document.getElementById('cd-streak').textContent)||1;
+
+  const text=`🧠 Just completed my GymBrain session!
+
+🏆 Score: ${finalScore} pts
+🎯 Accuracy: ${accuracy}
+🧩 Puzzles: ${puzzles}
+🔥 Streak: ${streak} days
+
+Train your brain. Every day.
+👉 gymbrain.in`;
+
+  const encodedText=encodeURIComponent(text);
+  const url='https://gymbrain.in';
+
+  switch(platform){
+    case 'whatsapp':
+      window.open(`https://wa.me/?text=${encodedText}`,'_blank');
+      break;
+    case 'linkedin':
+      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodedText}`,'_blank');
+      break;
+    case 'twitter':
+      window.open(`https://twitter.com/intent/tweet?text=${encodedText}`,'_blank');
+      break;
+    case 'facebook':
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodedText}`,'_blank');
+      break;
+    case 'instagram':
+      // Instagram doesn't support direct share URL — copy text instead
+      navigator.clipboard.writeText(text).then(()=>{
+        const btn=document.getElementById('copy-btn');
+        const orig=btn.innerHTML;
+        btn.innerHTML='<span class="share-icon">✅</span>Copied!';
+        btn.style.borderColor='var(--accent)';
+        btn.style.color='var(--accent)';
+        setTimeout(()=>{btn.innerHTML=orig;btn.style.borderColor='';btn.style.color='';},2000);
+        alert('Text copied! Open Instagram and paste in your story or caption.');
+      });
+      break;
+    case 'copy':
+      navigator.clipboard.writeText(text).then(()=>{
+        const btn=document.getElementById('copy-btn');
+        const orig=btn.innerHTML;
+        btn.innerHTML='<span class="share-icon">✅</span>Copied!';
+        btn.style.borderColor='var(--accent)';
+        btn.style.color='var(--accent)';
+        setTimeout(()=>{btn.innerHTML=orig;btn.style.borderColor='';btn.style.color='';},2000);
+      }).catch(()=>{
+        prompt('Copy this text:',text);
+      });
+      break;
+  }
 }
 
 function renderSessionInsights(){
