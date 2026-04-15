@@ -897,13 +897,29 @@ function buildSmartQueue(){
   }
 
   // ── Force first puzzle to be EASY (difficulty 1) ──
-  // Find first easy puzzle from any type
   if(newQueue.length>0&&newQueue[0].difficulty!==1){
     const easyIdx=newQueue.findIndex(p=>p.difficulty===1);
     if(easyIdx>0){
       const easy=newQueue.splice(easyIdx,1)[0];
       newQueue.unshift(easy);
     }
+  }
+
+  // ── Inject memory grid puzzles every 6 positions ──
+  // Grid puzzles are memory type with input_type='grid'
+  const gridPuzzles=allPuzzles.filter(p=>p.type==='memory'&&p.input_type==='grid');
+  if(gridPuzzles.length>0){
+    // Insert a grid puzzle at position 5, 11, 17, 23...
+    let insertCount=0;
+    for(let pos=5;pos<newQueue.length;pos+=6){
+      const gridP=gridPuzzles[insertCount%gridPuzzles.length];
+      // Only insert if adjacent puzzles are not also memory
+      if(newQueue[pos-1]?.type!=='memory'&&newQueue[pos+1]?.type!=='memory'){
+        newQueue.splice(pos,0,{...gridP,_injected:true});
+        insertCount++;
+      }
+    }
+    console.log(`Injected ${insertCount} memory grid puzzles into queue`);
   }
 
   // ── Append new puzzles, reset seen set for recycling ──
@@ -1350,62 +1366,94 @@ function renderTomorrowPreview(){
   }
 }
 
-function shareScore(platform){
+function getShareText(){
   const finalScore=parseInt(document.getElementById('d-score').textContent)||0;
   const accuracy=document.getElementById('d-accuracy').textContent||'0%';
   const puzzles=document.getElementById('d-puzzles').textContent||'0';
-  const streak=parseInt(document.getElementById('h-streak').textContent)||
-                parseInt(document.getElementById('cd-streak').textContent)||1;
+  const streakEl=document.getElementById('streak-dots');
+  const streakDone=streakEl?streakEl.querySelectorAll('.streak-dot.done,.streak-dot.today').length:1;
+  return '🧠 Just completed my GymBrain session!\n\n🏆 Score: '+finalScore+' pts\n🎯 Accuracy: '+accuracy+'\n🧩 Puzzles solved: '+puzzles+'\n🔥 Streak: '+streakDone+' days\n\nTrain your brain. Every day.\n👉 gymbrain.in';
+}
 
-  const text=`🧠 Just completed my GymBrain session!
+function copyToClipboard(text,btnId){
+  const done=()=>{
+    const btn=document.getElementById(btnId||'copy-btn');
+    if(!btn)return;
+    const orig=btn.innerHTML;
+    btn.innerHTML='<span class="share-icon">✅</span>Copied!';
+    btn.style.borderColor='var(--accent)';btn.style.color='var(--accent)';
+    setTimeout(()=>{if(btn){btn.innerHTML=orig;btn.style.borderColor='';btn.style.color='';}},3000);
+  };
+  try{
+    if(navigator.clipboard&&window.isSecureContext){
+      navigator.clipboard.writeText(text).then(done).catch(()=>{fallbackCopy(text);done();});
+    } else {fallbackCopy(text);done();}
+  } catch(e){fallbackCopy(text);done();}
+}
 
-🏆 Score: ${finalScore} pts
-🎯 Accuracy: ${accuracy}
-🧩 Puzzles: ${puzzles}
-🔥 Streak: ${streak} days
+function fallbackCopy(text){
+  const ta=document.createElement('textarea');
+  ta.value=text;ta.style.cssText='position:fixed;top:0;left:0;opacity:0;';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand('copy');}catch(e){}
+  document.body.removeChild(ta);
+}
 
-Train your brain. Every day.
-👉 gymbrain.in`;
+function showShareHelper(platform,text){
+  const existing=document.getElementById('share-helper-modal');
+  if(existing)existing.remove();
+  const modal=document.createElement('div');
+  modal.id='share-helper-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:600;display:flex;align-items:flex-end;justify-content:center;padding:20px;';
+  const icons={linkedin:'💼',facebook:'📘',instagram:'📸'};
+  const names={linkedin:'LinkedIn',facebook:'Facebook',instagram:'Instagram'};
+  const appUrls={linkedin:'https://www.linkedin.com/feed/',facebook:'https://www.facebook.com/',instagram:'https://www.instagram.com/'};
+  const tips={
+    linkedin:'LinkedIn needs you to paste manually. Copy below → Open LinkedIn → Create a new post → Paste.',
+    facebook:'Copy your score below → Open Facebook → Create a post → Paste.',
+    instagram:'Copy below → Open Instagram → Create a story or post → Paste the text.'
+  };
+  const textDisplay=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  modal.innerHTML=`<div style="background:var(--card);border:1px solid var(--border2);border-radius:20px 20px 0 0;padding:28px 24px;width:100%;max-width:640px;">
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;margin-bottom:8px;">${icons[platform]} Share to ${names[platform]}</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:16px;">${tips[platform]}</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text);line-height:1.9;margin-bottom:16px;">${textDisplay}</div>
+    <div style="display:flex;gap:10px;margin-bottom:10px;">
+      <button id="share-copy-btn" onclick="copyToClipboard(${JSON.stringify(text)},'share-copy-btn')" style="flex:1;background:var(--accent);color:#080810;border:none;border-radius:12px;padding:14px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">📋 Copy Text</button>
+      <button onclick="window.open('${appUrls[platform]}','_blank')" style="flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:14px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);cursor:pointer;">Open ${names[platform]}</button>
+    </div>
+    <button onclick="document.getElementById('share-helper-modal').remove()" style="width:100%;background:transparent;border:1px solid var(--border);border-radius:12px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);cursor:pointer;letter-spacing:1px;">CLOSE</button>
+  </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+}
 
+function shareScore(platform){
+  const text=getShareText();
   const encodedText=encodeURIComponent(text);
   const url='https://gymbrain.in';
-
   switch(platform){
     case 'whatsapp':
-      window.open(`https://wa.me/?text=${encodedText}`,'_blank');
-      break;
-    case 'linkedin':
-      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodedText}`,'_blank');
+      window.open('https://wa.me/?text='+encodedText,'_blank');
       break;
     case 'twitter':
-      window.open(`https://twitter.com/intent/tweet?text=${encodedText}`,'_blank');
+      window.open('https://twitter.com/intent/tweet?text='+encodedText,'_blank');
+      break;
+    case 'linkedin':
+      showShareHelper('linkedin',text);
       break;
     case 'facebook':
-      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodedText}`,'_blank');
+      if(navigator.share){
+        navigator.share({title:'GymBrain Score',text:text,url:url}).catch(()=>showShareHelper('facebook',text));
+      } else {
+        showShareHelper('facebook',text);
+      }
       break;
     case 'instagram':
-      // Instagram doesn't support direct share URL — copy text instead
-      navigator.clipboard.writeText(text).then(()=>{
-        const btn=document.getElementById('copy-btn');
-        const orig=btn.innerHTML;
-        btn.innerHTML='<span class="share-icon">✅</span>Copied!';
-        btn.style.borderColor='var(--accent)';
-        btn.style.color='var(--accent)';
-        setTimeout(()=>{btn.innerHTML=orig;btn.style.borderColor='';btn.style.color='';},2000);
-        alert('Text copied! Open Instagram and paste in your story or caption.');
-      });
+      showShareHelper('instagram',text);
       break;
     case 'copy':
-      navigator.clipboard.writeText(text).then(()=>{
-        const btn=document.getElementById('copy-btn');
-        const orig=btn.innerHTML;
-        btn.innerHTML='<span class="share-icon">✅</span>Copied!';
-        btn.style.borderColor='var(--accent)';
-        btn.style.color='var(--accent)';
-        setTimeout(()=>{btn.innerHTML=orig;btn.style.borderColor='';btn.style.color='';},2000);
-      }).catch(()=>{
-        prompt('Copy this text:',text);
-      });
+      copyToClipboard(text,'copy-btn');
       break;
   }
 }
