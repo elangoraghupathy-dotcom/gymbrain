@@ -609,19 +609,33 @@ async function confirmSession(){
   if(sessionConfirmed)return;
   sessionConfirmed=true;
   const today=getTodayStr();
+  const yesterday=getYesterdayStr();
+
+  // Try to create session record
   const{data:newSession,error}=await sb.from('sessions').insert({user_id:currentUser.id,session_date:today}).select().single();
+
   if(error){
+    // Session already exists — fetch it
     const{data:existing}=await sb.from('sessions').select('id').eq('user_id',currentUser.id).eq('session_date',today).single();
     if(existing)currentSessionId=existing.id;
-    return;
+    // Still update profile even if session already existed
+  } else {
+    currentSessionId=newSession.id;
   }
-  currentSessionId=newSession.id;
+
+  // Always update profile streak + session count
   const{data:p}=await sb.from('profiles').select('total_sessions,streak,last_streak_day').eq('id',currentUser.id).single();
-  const yesterday=getYesterdayStr();
   let streak=p?.streak||0;
   if(p?.last_streak_day===yesterday)streak+=1;
   else if(p?.last_streak_day!==today)streak=1;
-  await sb.from('profiles').update({total_sessions:(p?.total_sessions||0)+1,streak,last_streak_day:today}).eq('id',currentUser.id);
+  
+  const{error:profileError}=await sb.from('profiles').update({
+    total_sessions:(p?.total_sessions||0)+1,
+    streak,
+    last_streak_day:today
+  }).eq('id',currentUser.id);
+
+  if(profileError)console.error('Profile update failed:',profileError);
 }
 
 function buildSmartQueue(){
@@ -770,7 +784,7 @@ function renderNextPuzzle(){
   area.appendChild(card);
 }
 
-function handleOpt(letter,p,card,clickedBtn,grid){
+async function handleOpt(letter,p,card,clickedBtn,grid){
   grid.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
   const ok=letter===p.correct_answer;
   clickedBtn.classList.add(ok?'correct':'wrong');
@@ -778,23 +792,23 @@ function handleOpt(letter,p,card,clickedBtn,grid){
   const btns=grid.querySelectorAll('.opt-btn');
   const corrIdx=letters.indexOf(p.correct_answer);
   if(!ok&&corrIdx>=0&&btns[corrIdx])btns[corrIdx].classList.add('correct');
-  recordAnswer(p,ok);addFeedback(card,ok,p.explanation);addNext(card);
+  await recordAnswer(p,ok);addFeedback(card,ok,p.explanation);addNext(card);
 }
 
-function handleInput(val,p,card,inp,sub){
+async function handleInput(val,p,card,inp,sub){
   inp.disabled=true;sub.disabled=true;
   const ok=val.trim().toUpperCase()===String(p.correct_answer).toUpperCase();
   inp.classList.add(ok?'correct':'wrong');
-  recordAnswer(p,ok);
+  await recordAnswer(p,ok);
   addFeedback(card,ok,ok?p.explanation:`Answer: ${p.correct_answer}. ${p.explanation}`);
   addNext(card);
 }
 
-function recordAnswer(p,correct){
+async function recordAnswer(p,correct){
   const responseTime=Math.round((Date.now()-puzzleStartTime)/1000);
   if(correct){score+=10;correctCount++;}
   puzzlesCompleted++;
-  if(!sessionConfirmed)confirmSession();
+  if(!sessionConfirmed)await confirmSession();
   document.getElementById('g-score').textContent=Math.round(score*multiplier);
   if(!weakAreas[p.type])weakAreas[p.type]={correct:0,total:0};
   weakAreas[p.type].total++;
@@ -866,7 +880,7 @@ function renderMemoryGame(area,p){
   card.appendChild(grid);area.appendChild(card);
 }
 
-function memClick(cell,state,grid,card,p){
+async function memClick(cell,state,grid,card,p){
   if(state.locked)return;
   const i=parseInt(cell.dataset.i);
   if(state.matched.includes(i)||state.revealed.includes(i))return;
@@ -879,7 +893,7 @@ function memClick(cell,state,grid,card,p){
       state.matched.push(a,b);state.revealed=[];state.locked=false;
       score+=5;document.getElementById('g-score').textContent=Math.round(score*multiplier);
       if(state.matched.length===state.pairs.length){
-        recordAnswer(p,true);addFeedback(card,true,'All pairs matched!');addNext(card);
+        await recordAnswer(p,true);addFeedback(card,true,'All pairs matched!');addNext(card);
       }
     } else {
       cells[a].classList.add('wrong-flash');cells[b].classList.add('wrong-flash');
