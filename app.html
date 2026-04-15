@@ -201,6 +201,19 @@
 
   .spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:40px auto;}
   @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* CELEBRATION */
+  .celebration-overlay{position:fixed;inset:0;pointer-events:none;z-index:500;overflow:hidden;}
+  .confetti-piece{position:absolute;width:10px;height:10px;top:-20px;animation:confetti-fall linear forwards;}
+  @keyframes confetti-fall{
+    0%{transform:translateY(0) rotate(0deg);opacity:1;}
+    100%{transform:translateY(110vh) rotate(720deg);opacity:0;}
+  }
+  .crown-badge{font-size:48px;text-align:center;margin:16px 0;animation:crown-pop 0.6s cubic-bezier(0.16,1,0.3,1);}
+  @keyframes crown-pop{from{transform:scale(0) rotate(-20deg);opacity:0;}to{transform:scale(1) rotate(0deg);opacity:1;}}
+  .appreciation-msg{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.5px;text-align:center;margin-bottom:8px;animation:fade-up 0.5s ease 0.3s both;}
+  .appreciation-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center;letter-spacing:1px;line-height:1.8;animation:fade-up 0.5s ease 0.5s both;}
+  @keyframes fade-up{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
   .loading-text{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-align:center;margin-top:8px;}
 </style>
 </head>
@@ -343,11 +356,16 @@
     <div id="g-puzzle-area" style="width:100%;"></div>
   </div>
 
+  <!-- CELEBRATION OVERLAY -->
+  <div class="celebration-overlay" id="celebration-overlay"></div>
+
   <!-- DONE -->
   <div class="screen" id="screen-done">
-    <div class="done-hero">
-      <div class="done-eyebrow">Session Complete</div>
-      <div class="done-title">WELL<br>DONE.</div>
+    <div class="crown-badge" id="crown-badge">🏆</div>
+    <div class="appreciation-msg" id="appreciation-msg">Well Done!</div>
+    <div class="appreciation-sub" id="appreciation-sub">Your brain worked hard today.</div>
+
+    <div class="done-hero" style="margin-top:16px;">
       <div class="done-score" id="d-score">0</div>
       <div class="done-score-label">POINTS EARNED</div>
     </div>
@@ -787,13 +805,31 @@ function buildSmartQueue(){
     }
   }
 
-  // ── If session queue already has items (rebuild), append ──
+  // ── Append new puzzles, reset seen set for recycling ──
   if(sessionQueue.length===0){
     sessionQueue=newQueue;
+    queueIndex=0;
   } else {
-    sessionQueue=[...sessionQueue,...newQueue];
+    // Recycle — reshuffle all puzzles completely before appending
+    const recycled=allPuzzles
+      .map(p=>({...p,priority:Math.random()}))
+      .sort((a,b)=>b.priority-a.priority);
+    // Interleave recycled puzzles
+    const recycledQueue=[];
+    const rPools={};
+    TYPES.forEach(t=>{rPools[t]=recycled.filter(p=>p.type===t);});
+    const rPtrs={};TYPES.forEach(t=>{rPtrs[t]=0;});
+    let rLast=null,rAttempts=0;
+    while(recycledQueue.length<100&&rAttempts<600){
+      rAttempts++;
+      const avail=TYPES.filter(t=>t!==rLast&&rPtrs[t]<rPools[t].length);
+      if(!avail.length) break;
+      const t=avail[Math.floor(Math.random()*avail.length)];
+      recycledQueue.push(rPools[t][rPtrs[t]++]);
+      rLast=t;
+    }
+    sessionQueue=[...sessionQueue,...recycledQueue];
   }
-  queueIndex=queueIndex||0;
 
   // Log distribution for debugging
   const dist={};
@@ -1027,28 +1063,90 @@ async function endSession(){
   clearInterval(timerInterval);
   document.removeEventListener('visibilitychange',handleVisibility);
   sessionStorage.removeItem('gb_active_session');
-  if(!sessionConfirmed||!currentSessionId){
-    showScreen('screen-done');
-    document.getElementById('d-score').textContent=0;
-    document.getElementById('d-correct').textContent=0;
-    document.getElementById('d-puzzles').textContent=0;
-    document.getElementById('d-accuracy').textContent='0%';
-    return;
-  }
+
   const finalScore=Math.round(score*multiplier);
-  await sb.from('sessions').update({
-    ended_at:new Date().toISOString(),score:finalScore,
-    puzzles_completed:puzzlesCompleted,correct_count:correctCount
-  }).eq('id',currentSessionId);
-  const{data:pr}=await sb.from('profiles').select('best_score').eq('id',currentUser.id).single();
-  if(finalScore>(pr?.best_score||0))await sb.from('profiles').update({best_score:finalScore}).eq('id',currentUser.id);
+  const acc=puzzlesCompleted>0?Math.round(correctCount/puzzlesCompleted*100):0;
+
+  // Show done screen immediately — don't wait for DB
   document.getElementById('d-score').textContent=finalScore;
   document.getElementById('d-correct').textContent=correctCount;
   document.getElementById('d-puzzles').textContent=puzzlesCompleted;
-  const acc=puzzlesCompleted>0?Math.round(correctCount/puzzlesCompleted*100):0;
   document.getElementById('d-accuracy').textContent=acc+'%';
   renderSessionInsights();
+  launchCelebration(finalScore,acc);
   showScreen('screen-done');
+
+  // Save to DB in background — non-blocking
+  if(sessionConfirmed&&currentSessionId){
+    try{
+      await sb.from('sessions').update({
+        ended_at:new Date().toISOString(),score:finalScore,
+        puzzles_completed:puzzlesCompleted,correct_count:correctCount
+      }).eq('id',currentSessionId);
+      const{data:pr}=await sb.from('profiles').select('best_score').eq('id',currentUser.id).single();
+      if(finalScore>(pr?.best_score||0)){
+        await sb.from('profiles').update({best_score:finalScore}).eq('id',currentUser.id);
+      }
+    } catch(e){console.warn('Session save failed:',e);}
+  }
+}
+
+function launchCelebration(finalScore, acc){
+  // Crown and message based on performance
+  const crown=document.getElementById('crown-badge');
+  const msg=document.getElementById('appreciation-msg');
+  const sub=document.getElementById('appreciation-sub');
+
+  if(acc>=90){
+    crown.textContent='👑';
+    msg.textContent='OUTSTANDING!';
+    msg.style.color='var(--accent)';
+    sub.innerHTML='Perfect brain day. You are on fire.<br>Come back tomorrow and keep the streak alive. 🔥';
+  } else if(acc>=75){
+    crown.textContent='🏆';
+    msg.textContent='EXCELLENT WORK!';
+    msg.style.color='var(--accent)';
+    sub.innerHTML='Sharp mind, sharp answers.<br>Your brain is getting stronger every session.';
+  } else if(acc>=60){
+    crown.textContent='💪';
+    msg.textContent='WELL DONE!';
+    msg.style.color='var(--accent3)';
+    sub.innerHTML='Solid session today.<br>Consistency is the key — see you tomorrow.';
+  } else if(finalScore>0){
+    crown.textContent='🧠';
+    msg.textContent='KEEP GOING!';
+    msg.style.color='var(--accent4)';
+    sub.innerHTML=`Every rep makes your brain stronger.<br>Tomorrow you will do better. That's how training works.`;
+  } else {
+    crown.textContent='🌱';
+    msg.textContent='GOOD START!';
+    msg.style.color='var(--accent3)';
+    sub.innerHTML=`You showed up. That's what matters.<br>Come back tomorrow for a fresh session.`;
+  }
+
+  // Launch confetti
+  const overlay=document.getElementById('celebration-overlay');
+  overlay.innerHTML='';
+  const colours=['#c8ff00','#ff3d6e','#00e5ff','#ff9500','#ffffff','#c8ff00'];
+  const count=acc>=75?60:acc>=60?40:20;
+
+  for(let i=0;i<count;i++){
+    const piece=document.createElement('div');
+    piece.className='confetti-piece';
+    piece.style.cssText=`
+      left:${Math.random()*100}%;
+      background:${colours[Math.floor(Math.random()*colours.length)]};
+      width:${6+Math.random()*8}px;
+      height:${6+Math.random()*8}px;
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+      animation-duration:${2+Math.random()*2}s;
+      animation-delay:${Math.random()*1.5}s;
+    `;
+    overlay.appendChild(piece);
+  }
+
+  // Clear confetti after animation
+  setTimeout(()=>{overlay.innerHTML='';},5000);
 }
 
 function renderSessionInsights(){
