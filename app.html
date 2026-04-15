@@ -464,7 +464,11 @@ async function loadHome(){
     const nextMidnight2=new Date();nextMidnight2.setHours(24,0,0,0);
     const diffMins2=Math.round((nextMidnight2-new Date())/60000);
     const hrs2=Math.floor(diffMins2/60),mins2=diffMins2%60;
-    document.getElementById('cooldown-text').innerHTML=`Admin mode active. Users locked for <strong>${hrs2}h ${mins2}m</strong>. Your score today: <strong>${todaySession.score} pts</strong>`;
+    document.getElementById('cooldown-message').textContent=`Admin mode. Users locked for ${hrs2}h ${mins2}m. Your score: ${todaySession.score} pts`;
+    document.getElementById('cd-unlock').textContent=hrs2+'h '+mins2+'m';
+    document.getElementById('cd-score').textContent=todaySession.score||0;
+    document.getElementById('cd-accuracy').textContent='ADMIN';
+    document.getElementById('cd-streak').textContent='∞';
   }else{
     document.getElementById('begin-btn').disabled=false;
     document.getElementById('begin-btn').textContent=isAdmin?'🧪 BEGIN SESSION (ADMIN)':'BEGIN SESSION';
@@ -579,6 +583,10 @@ async function beginSession(){
 }
 
 function buildSmartQueue(){
+  if(!allPuzzles||allPuzzles.length===0){
+    console.error('No puzzles loaded from Supabase');
+    return;
+  }
   // Strategy:
   // 1. Never repeat a puzzle seen in this session
   // 2. Strict interleaving — no same type twice in a row
