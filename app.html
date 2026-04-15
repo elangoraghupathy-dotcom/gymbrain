@@ -323,16 +323,18 @@ const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
 let currentUser=null,selectedMode=45,sessionSeconds=0,timerInterval=null;
 let totalSeconds=0,score=0,puzzlesCompleted=0,correctCount=0,multiplier=1;
 let sessionQueue=[],queueIndex=0,currentSessionId=null,isAuthSignup=true;
-let sessionHistory=[]; // {puzzle_id, type, correct, start_time}
+let sessionHistory=[];
 let sessionActive=false;
+let sessionConfirmed=false;
+let sessionPaused=false;
 let puzzleStartTime=null;
-let userHistory={}; // puzzle_id -> history record
-let allPuzzles=[]; // all puzzles from DB
-let weakAreas={}; // type -> {correct, total}
-let currentDifficulty=1; // adapts during session
-let lastType=null; // for interleaving
+let userHistory={};
+let allPuzzles=[];
+let weakAreas={};
+let currentDifficulty=1;
+let lastType=null;
 const multipliers={15:1,30:1.5,45:1.75,60:2};
-const ADMIN_EMAIL='elangoraghupathy@gmail.com'; // test mode — bypasses daily lock
+const ADMIN_EMAIL='elangoraghupathy@gmail.com';
 const TYPES=['logic','math','word','sequence','visual','memory'];
 const TYPE_LABELS={logic:'🧩 Logic',math:'➕ Math',word:'🔤 Word',sequence:'🔢 Sequence',visual:'👁 Visual',memory:'🧠 Memory'};
 const DIFF_LABELS={1:'EASY',2:'MEDIUM',3:'HARD'};
@@ -358,7 +360,6 @@ async function init(){
       await ensureProfile();
       await loadHome();
       showScreen('screen-home');
-      // If redirected back to landing page, push to /app
       if(window.location.pathname==='/'||window.location.pathname===''){
         window.location.href='https://gymbrain.in/app';
         return;
@@ -383,10 +384,8 @@ async function signInWithGoogle(){
   const btn=document.getElementById('google-btn');
   btn.disabled=true;btn.textContent='Redirecting to Google...';
   const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://gymbrain.in/app'}});
-  if(error){showMsg('auth-msg',error.message,'error');btn.disabled=false;btn.innerHTML=gBtnHTML();}
+  if(error){showMsg('auth-msg',error.message,'error');btn.disabled=false;}
 }
-
-function gBtnHTML(){return`<svg class="google-icon" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Continue with Google`;}
 
 function toggleAuthMode(){
   isAuthSignup=!isAuthSignup;
@@ -412,7 +411,7 @@ async function handleEmailAuth(){
   await ensureProfile();await loadHome();showScreen('screen-home');
 }
 
-async function signOut(){clearInterval(timerInterval);await sb.auth.signOut();}
+async function signOut(){clearInterval(timerInterval);sessionActive=false;await sb.auth.signOut();}
 
 // ============================================================
 // HOME
@@ -423,26 +422,21 @@ async function loadHome(){
   document.getElementById('h-date').textContent=d.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}).toUpperCase();
   const name=currentUser?.user_metadata?.full_name||currentUser?.user_metadata?.name||currentUser?.email?.split('@')[0]||'User';
   document.getElementById('user-pill').textContent=name+' · sign out';
-
   if(!currentUser)return;
-
-  // Load profile
   const{data:profile}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
   if(profile){
     document.getElementById('h-streak').textContent=profile.streak||0;
     document.getElementById('h-best').textContent=profile.best_score||0;
     document.getElementById('h-sessions').textContent=profile.total_sessions||0;
   }
-
-  // Load user history to compute weak areas + difficulty
   await loadUserHistory();
   renderWeakAreas();
   setTodayDifficulty(profile?.total_sessions||0);
 
-  // Check cooldown
   const today=getTodayStr();
   const{data:todaySession}=await sb.from('sessions').select('*').eq('user_id',currentUser.id).eq('session_date',today).single();
   const isAdmin=currentUser?.email===ADMIN_EMAIL;
+
   if(todaySession&&!isAdmin){
     document.getElementById('begin-btn').style.display='none';
     document.getElementById('cooldown-card').style.display='block';
@@ -456,21 +450,23 @@ async function loadHome(){
     document.getElementById('cd-streak').textContent=(profile?.streak||0)+'d';
     document.getElementById('cd-unlock').textContent=hrs+'h '+mins+'m';
     document.getElementById('cooldown-message').textContent=appreciation;
-  }else if(todaySession&&isAdmin){
+  } else if(todaySession&&isAdmin){
     document.getElementById('begin-btn').disabled=false;
+    document.getElementById('begin-btn').style.display='block';
     document.getElementById('begin-btn').textContent='🧪 TEST MODE — BEGIN SESSION';
     document.getElementById('begin-btn').style.background='var(--accent4)';
     document.getElementById('cooldown-card').style.display='block';
-    const nextMidnight2=new Date();nextMidnight2.setHours(24,0,0,0);
-    const diffMins2=Math.round((nextMidnight2-new Date())/60000);
-    const hrs2=Math.floor(diffMins2/60),mins2=diffMins2%60;
-    document.getElementById('cooldown-message').textContent=`Admin mode. Users locked for ${hrs2}h ${mins2}m. Your score: ${todaySession.score} pts`;
-    document.getElementById('cd-unlock').textContent=hrs2+'h '+mins2+'m';
+    const nextMidnight=new Date();nextMidnight.setHours(24,0,0,0);
+    const diffMins=Math.round((nextMidnight-new Date())/60000);
+    const hrs=Math.floor(diffMins/60),mins=diffMins%60;
     document.getElementById('cd-score').textContent=todaySession.score||0;
     document.getElementById('cd-accuracy').textContent='ADMIN';
-    document.getElementById('cd-streak').textContent='∞';
-  }else{
+    document.getElementById('cd-streak').textContent=(profile?.streak||0)+'d';
+    document.getElementById('cd-unlock').textContent=hrs+'h '+mins+'m';
+    document.getElementById('cooldown-message').textContent='Admin mode — lock bypassed. Regular users locked for '+hrs+'h '+mins+'m.';
+  } else {
     document.getElementById('begin-btn').disabled=false;
+    document.getElementById('begin-btn').style.display='block';
     document.getElementById('begin-btn').textContent=isAdmin?'🧪 BEGIN SESSION (ADMIN)':'BEGIN SESSION';
     document.getElementById('begin-btn').style.background=isAdmin?'var(--accent4)':'var(--accent)';
     document.getElementById('cooldown-card').style.display='none';
@@ -483,12 +479,7 @@ async function loadUserHistory(){
   TYPES.forEach(t=>{weakAreas[t]={correct:0,total:0};});
   userHistory={};
   const{data:history}=await sb.from('user_puzzle_history').select('*').eq('user_id',currentUser.id);
-  if(history){
-    history.forEach(h=>{
-      userHistory[h.puzzle_id]=h;
-    });
-  }
-  // Also load puzzle types to map history to types
+  if(history){history.forEach(h=>{userHistory[h.puzzle_id]=h;});}
   if(Object.keys(userHistory).length>0){
     const ids=Object.keys(userHistory);
     const{data:puzzles}=await sb.from('puzzles').select('id,type').in('id',ids);
@@ -505,7 +496,6 @@ async function loadUserHistory(){
 }
 
 function setTodayDifficulty(totalSessions){
-  // Progressive difficulty: sessions 1-5 easy, 6-15 mix, 15+ harder
   if(totalSessions<=5)currentDifficulty=1;
   else if(totalSessions<=15)currentDifficulty=2;
   else currentDifficulty=3;
@@ -517,9 +507,7 @@ function renderWeakAreas(){
   const types=Object.keys(weakAreas).filter(t=>weakAreas[t].total>0);
   if(types.length===0){document.getElementById('weak-card').style.display='none';return;}
   document.getElementById('weak-card').style.display='block';
-  const container=document.getElementById('weak-bars');
-  container.innerHTML='';
-  // Sort by accuracy ascending (weakest first)
+  const container=document.getElementById('weak-bars');container.innerHTML='';
   types.sort((a,b)=>{
     const accA=weakAreas[a].total>0?weakAreas[a].correct/weakAreas[a].total:1;
     const accB=weakAreas[b].total>0?weakAreas[b].correct/weakAreas[b].total:1;
@@ -528,8 +516,7 @@ function renderWeakAreas(){
   types.forEach(t=>{
     const acc=weakAreas[t].total>0?Math.round(weakAreas[t].correct/weakAreas[t].total*100):0;
     const color=acc>=80?'var(--accent)':acc>=60?'var(--accent4)':'var(--accent2)';
-    const row=document.createElement('div');
-    row.className='weak-bar-row';
+    const row=document.createElement('div');row.className='weak-bar-row';
     row.innerHTML=`<div class="weak-bar-label">${TYPE_LABELS[t]?.split(' ')[0]||t}</div>
       <div class="weak-bar-track"><div class="weak-bar-fill" style="width:${acc}%;background:${color};"></div></div>
       <div class="weak-bar-pct">${acc}%</div>`;
@@ -548,128 +535,105 @@ function selectMode(mins){
 async function beginSession(){
   if(!currentUser)return;
   const today=getTodayStr();
-  const{data:existing}=await sb.from('sessions').select('id').eq('user_id',currentUser.id).eq('session_date',today).single();
-  if(existing){await loadHome();return;}
+  const isAdminUser=currentUser?.email===ADMIN_EMAIL;
+  if(!isAdminUser){
+    const{data:existing}=await sb.from('sessions').select('id').eq('user_id',currentUser.id).eq('session_date',today).single();
+    if(existing){await loadHome();return;}
+  }
 
-  // Create session
+  // Reset state — DB session created lazily on first answer
+  currentSessionId=null;
+  sessionConfirmed=false;
+  totalSeconds=selectedMode*60;
+  sessionSeconds=totalSeconds;
+  multiplier=multipliers[selectedMode];
+  score=0;puzzlesCompleted=0;correctCount=0;sessionHistory=[];lastType=null;
+  sessionQueue=[];queueIndex=0;
+
+  setLoadingText('BUILDING YOUR SESSION');
+  showScreen('screen-loading');
+  const{data:puzzles}=await sb.from('puzzles').select('*').eq('active',true);
+  allPuzzles=puzzles||[];
+
+  if(!allPuzzles.length){
+    alert('Could not load puzzles. Check your connection.');
+    showScreen('screen-home');
+    return;
+  }
+
+  buildSmartQueue();
+  sessionStorage.setItem('gb_active_session',JSON.stringify({mode:selectedMode,seconds:totalSeconds,multiplier,startedAt:Date.now()}));
+  showScreen('screen-game');
+  startTimer();
+  renderNextPuzzle();
+}
+
+// Lazily confirm session in DB on first answer
+async function confirmSession(){
+  if(sessionConfirmed)return;
+  sessionConfirmed=true;
+  const today=getTodayStr();
   const{data:newSession,error}=await sb.from('sessions').insert({user_id:currentUser.id,session_date:today}).select().single();
-  if(error){alert('Could not start session. Try again.');return;}
+  if(error){
+    const{data:existing}=await sb.from('sessions').select('id').eq('user_id',currentUser.id).eq('session_date',today).single();
+    if(existing)currentSessionId=existing.id;
+    return;
+  }
   currentSessionId=newSession.id;
-
-  // Update profile
   const{data:p}=await sb.from('profiles').select('total_sessions,streak,last_streak_day').eq('id',currentUser.id).single();
   const yesterday=getYesterdayStr();
   let streak=p?.streak||0;
   if(p?.last_streak_day===yesterday)streak+=1;
   else if(p?.last_streak_day!==today)streak=1;
   await sb.from('profiles').update({total_sessions:(p?.total_sessions||0)+1,streak,last_streak_day:today}).eq('id',currentUser.id);
-
-  // Reset state
-  totalSeconds=selectedMode*60;sessionSeconds=totalSeconds;multiplier=multipliers[selectedMode];
-  score=0;puzzlesCompleted=0;correctCount=0;sessionHistory=[];lastType=null;
-  sessionQueue=[];queueIndex=0;
-
-  // Load ALL puzzles from Supabase
-  setLoadingText('BUILDING YOUR SESSION');
-  showScreen('screen-loading');
-  const{data:puzzles}=await sb.from('puzzles').select('*').eq('active',true);
-  allPuzzles=puzzles||[];
-
-  // Build smart queue
-  buildSmartQueue();
-  showScreen('screen-game');
-  startTimer();
-  renderNextPuzzle();
 }
 
 function buildSmartQueue(){
-  if(!allPuzzles||allPuzzles.length===0){
-    console.error('No puzzles loaded from Supabase');
-    return;
-  }
-  // Strategy:
-  // 1. Never repeat a puzzle seen in this session
-  // 2. Strict interleaving — no same type twice in a row
-  // 3. Prioritise weak areas (lower accuracy = more puzzles)
-  // 4. Spaced repetition — wrong answers from past sessions come back first
-  // 5. Progressive difficulty — match current difficulty level
-
+  if(!allPuzzles||allPuzzles.length===0)return;
   const seenInSession=new Set();
   sessionQueue=[];
-
-  // Separate puzzles by type
-  const byType={};
-  TYPES.forEach(t=>{byType[t]=[];});
-  allPuzzles.forEach(p=>{if(byType[p.type])byType[p.type].push(p);});
-
-  // Score each puzzle for priority
   const scoredPuzzles=allPuzzles.map(p=>{
     const h=userHistory[p.id];
     let priority=0;
-
-    // Never seen = medium priority
     if(!h){priority=50;}
     else{
-      // Wrong before = high priority (spaced repetition)
       const acc=h.times_seen>0?h.times_correct/h.times_seen:0;
-      if(acc<0.5)priority=100; // got it wrong mostly
-      else if(acc<0.8)priority=70; // got it sometimes
-      else priority=20; // mastered — show less
+      if(acc<0.5)priority=100;
+      else if(acc<0.8)priority=70;
+      else priority=20;
     }
-
-    // Boost weak area types
     const typeAcc=weakAreas[p.type]?.total>0?weakAreas[p.type].correct/weakAreas[p.type].total:0.5;
     if(typeAcc<0.6)priority+=30;
-
-    // Difficulty match
     if(p.difficulty===currentDifficulty)priority+=20;
     else if(Math.abs(p.difficulty-currentDifficulty)===1)priority+=5;
     else priority-=10;
-
     return{...p,priority};
   });
-
-  // Sort by priority desc, shuffle within same priority
   scoredPuzzles.sort((a,b)=>b.priority-a.priority||(Math.random()-0.5));
-
-  // Build interleaved queue of 200 puzzles
   const typeQueues={};
-  TYPES.forEach(t=>{
-    typeQueues[t]=scoredPuzzles.filter(p=>p.type===t);
-  });
-
+  TYPES.forEach(t=>{typeQueues[t]=scoredPuzzles.filter(p=>p.type===t);});
   const typePointers={};TYPES.forEach(t=>{typePointers[t]=0;});
-  let lastUsedType=null;
-  let attempts=0;
-
+  let lastUsedType=null,attempts=0;
   while(sessionQueue.length<200&&attempts<2000){
     attempts++;
-    // Pick next type — not same as last, weighted by weak areas
-    const availableTypes=TYPES.filter(t=>{
-      return t!==lastUsedType&&typePointers[t]<typeQueues[t].length;
-    });
+    const availableTypes=TYPES.filter(t=>t!==lastUsedType&&typePointers[t]<typeQueues[t].length);
     if(availableTypes.length===0)break;
-
-    // Weight types by weakness
     const weights=availableTypes.map(t=>{
       const acc=weakAreas[t]?.total>0?weakAreas[t].correct/weakAreas[t].total:0.5;
-      return Math.max(0.1,1-acc+0.5); // weaker = higher weight
+      return Math.max(0.1,1-acc+0.5);
     });
     const total=weights.reduce((a,b)=>a+b,0);
     let rand=Math.random()*total;
     let chosenType=availableTypes[0];
     for(let i=0;i<availableTypes.length;i++){rand-=weights[i];if(rand<=0){chosenType=availableTypes[i];break;}}
-
     const puzzle=typeQueues[chosenType][typePointers[chosenType]];
     typePointers[chosenType]++;
-
     if(!seenInSession.has(puzzle.id)){
       seenInSession.add(puzzle.id);
       sessionQueue.push(puzzle);
       lastUsedType=chosenType;
     }
   }
-
   queueIndex=0;
 }
 
@@ -678,21 +642,46 @@ function buildSmartQueue(){
 // ============================================================
 function startTimer(){
   sessionActive=true;
+  sessionPaused=false;
   updateTimerDisplay();
-  timerInterval=setInterval(()=>{
-    sessionSeconds--;
-    updateTimerDisplay();
-    if(puzzlesCompleted>0&&puzzlesCompleted%10===0){
-      const recentAcc=correctCount/puzzlesCompleted;
-      if(recentAcc>0.8&&currentDifficulty<3)currentDifficulty++;
-      else if(recentAcc<0.5&&currentDifficulty>1)currentDifficulty--;
+
+  // Pause timer when tab hidden / phone screen locks
+  document.addEventListener('visibilitychange',handleVisibility);
+
+  timerInterval=setInterval(timerTick,1000);
+}
+
+function handleVisibility(){
+  if(document.hidden){
+    sessionPaused=true;
+    clearInterval(timerInterval);
+    timerInterval=null;
+    const el=document.getElementById('g-timer');
+    if(el)el.style.opacity='0.4';
+  } else {
+    sessionPaused=false;
+    if(sessionActive&&sessionSeconds>0){
+      const el=document.getElementById('g-timer');
+      if(el)el.style.opacity='1';
+      timerInterval=setInterval(timerTick,1000);
     }
-    if(sessionSeconds<=0){
-      clearInterval(timerInterval);
-      sessionActive=false;
-      endSession();
-    }
-  },1000);
+  }
+}
+
+function timerTick(){
+  sessionSeconds--;
+  updateTimerDisplay();
+  if(puzzlesCompleted>0&&puzzlesCompleted%10===0){
+    const recentAcc=correctCount/puzzlesCompleted;
+    if(recentAcc>0.8&&currentDifficulty<3)currentDifficulty++;
+    else if(recentAcc<0.5&&currentDifficulty>1)currentDifficulty--;
+  }
+  if(sessionSeconds<=0){
+    clearInterval(timerInterval);
+    document.removeEventListener('visibilitychange',handleVisibility);
+    sessionActive=false;
+    endSession();
+  }
 }
 
 function updateTimerDisplay(){
@@ -710,60 +699,36 @@ function updateTimerDisplay(){
 // ============================================================
 function renderNextPuzzle(){
   if(!sessionActive)return;
-  if(queueIndex>=sessionQueue.length){
-    // Rebuild with remaining unseen puzzles
-    buildSmartQueue();
-    if(sessionQueue.length===0)return;
-  }
-
+  if(queueIndex>=sessionQueue.length){buildSmartQueue();if(sessionQueue.length===0)return;}
   const p=sessionQueue[queueIndex++];
   puzzleStartTime=Date.now();
   lastType=p.type;
-
-  // Update type + difficulty tags
   document.getElementById('g-type').textContent=TYPE_LABELS[p.type]||p.type;
   const diffEl=document.getElementById('g-diff');
   diffEl.textContent=DIFF_LABELS[p.difficulty]||'';
   diffEl.className=`diff-tag diff-${p.difficulty}`;
-
-  const area=document.getElementById('g-puzzle-area');
-  area.innerHTML='';
-
-  if(p.type==='memory'&&(p.input_type==='grid'||!p.option_a)){
-    renderMemoryGame(area,p);
-    return;
-  }
-
-  const card=document.createElement('div');
-  card.className='puzzle-card';
-  card.innerHTML=`<div class="puzzle-counter">Puzzle #${puzzlesCompleted+1} <span class="mult-badge">${multiplier}× pts</span></div>
-    <div class="puzzle-q">${p.question}</div>`;
-
+  const area=document.getElementById('g-puzzle-area');area.innerHTML='';
+  if(p.type==='memory'&&(p.input_type==='grid'||!p.option_a)){renderMemoryGame(area,p);return;}
+  const card=document.createElement('div');card.className='puzzle-card';
+  card.innerHTML=`<div class="puzzle-counter">Puzzle #${puzzlesCompleted+1} <span class="mult-badge">${multiplier}× pts</span></div><div class="puzzle-q">${p.question}</div>`;
   if(p.input_type==='mcq'&&p.option_a){
-    const grid=document.createElement('div');
-    grid.className='opts-grid';
+    const grid=document.createElement('div');grid.className='opts-grid';
     const opts=[p.option_a,p.option_b,p.option_c,p.option_d];
     const letters=['a','b','c','d'];
     opts.forEach((o,i)=>{
       if(!o)return;
-      const btn=document.createElement('button');
-      btn.className='opt-btn';
-      btn.textContent=o;
+      const btn=document.createElement('button');btn.className='opt-btn';btn.textContent=o;
       btn.onclick=()=>handleOpt(letters[i],p,card,btn,grid);
       grid.appendChild(btn);
     });
     card.appendChild(grid);
   } else {
-    const wrap=document.createElement('div');
-    wrap.className='input-wrap';
-    const inp=document.createElement('input');
-    inp.className='ans-input';inp.placeholder='?';inp.autocomplete='off';
-    const sub=document.createElement('button');
-    sub.className='sub-btn';sub.textContent='CHECK ANSWER';
+    const wrap=document.createElement('div');wrap.className='input-wrap';
+    const inp=document.createElement('input');inp.className='ans-input';inp.placeholder='?';inp.autocomplete='off';
+    const sub=document.createElement('button');sub.className='sub-btn';sub.textContent='CHECK ANSWER';
     sub.onclick=()=>handleInput(inp.value,p,card,inp,sub);
     inp.addEventListener('keydown',e=>{if(e.key==='Enter')sub.click();});
-    wrap.appendChild(inp);wrap.appendChild(sub);
-    card.appendChild(wrap);
+    wrap.appendChild(inp);wrap.appendChild(sub);card.appendChild(wrap);
     setTimeout(()=>inp.focus(),80);
   }
   area.appendChild(card);
@@ -773,14 +738,11 @@ function handleOpt(letter,p,card,clickedBtn,grid){
   grid.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
   const ok=letter===p.correct_answer;
   clickedBtn.classList.add(ok?'correct':'wrong');
-  // Show correct answer
   const letters=['a','b','c','d'];
   const btns=grid.querySelectorAll('.opt-btn');
   const corrIdx=letters.indexOf(p.correct_answer);
   if(!ok&&corrIdx>=0&&btns[corrIdx])btns[corrIdx].classList.add('correct');
-  recordAnswer(p,ok);
-  addFeedback(card,ok,p.explanation);
-  addNext(card);
+  recordAnswer(p,ok);addFeedback(card,ok,p.explanation);addNext(card);
 }
 
 function handleInput(val,p,card,inp,sub){
@@ -796,36 +758,27 @@ function recordAnswer(p,correct){
   const responseTime=Math.round((Date.now()-puzzleStartTime)/1000);
   if(correct){score+=10;correctCount++;}
   puzzlesCompleted++;
+  if(!sessionConfirmed)confirmSession();
   document.getElementById('g-score').textContent=Math.round(score*multiplier);
-
-  // Update weak areas tracking
   if(!weakAreas[p.type])weakAreas[p.type]={correct:0,total:0};
   weakAreas[p.type].total++;
   if(correct)weakAreas[p.type].correct++;
-
-  // Queue DB update (non-blocking)
   updatePuzzleHistory(p.id,correct,responseTime);
-
-  // Store in session history
   sessionHistory.push({puzzle_id:p.id,type:p.type,correct,responseTime});
 }
 
 async function updatePuzzleHistory(puzzleId,correct,responseTime){
-  if(!currentUser)return;
+  if(!currentUser||!sessionConfirmed)return;
   const existing=userHistory[puzzleId];
   if(existing){
     const newTimesCorrect=(existing.times_correct||0)+(correct?1:0);
     const newTimesSeen=(existing.times_seen||0)+1;
-    // Spaced repetition: next show date
     const acc=newTimesCorrect/newTimesSeen;
     const daysUntilNext=correct?(acc>0.8?7:acc>0.6?3:1):1;
     const nextDate=new Date();nextDate.setDate(nextDate.getDate()+daysUntilNext);
     await sb.from('user_puzzle_history').update({
-      times_seen:newTimesSeen,
-      times_correct:newTimesCorrect,
-      answered_correct:correct,
-      response_time_seconds:responseTime,
-      last_seen_date:getTodayStr(),
+      times_seen:newTimesSeen,times_correct:newTimesCorrect,answered_correct:correct,
+      response_time_seconds:responseTime,last_seen_date:getTodayStr(),
       next_show_date:nextDate.toISOString().split('T')[0]
     }).eq('user_id',currentUser.id).eq('puzzle_id',puzzleId);
     userHistory[puzzleId]={...existing,times_seen:newTimesSeen,times_correct:newTimesCorrect};
@@ -833,62 +786,48 @@ async function updatePuzzleHistory(puzzleId,correct,responseTime){
     const daysUntilNext=correct?3:1;
     const nextDate=new Date();nextDate.setDate(nextDate.getDate()+daysUntilNext);
     const{data}=await sb.from('user_puzzle_history').insert({
-      user_id:currentUser.id,
-      puzzle_id:puzzleId,
-      answered_correct:correct,
-      response_time_seconds:responseTime,
-      times_seen:1,
-      times_correct:correct?1:0,
-      last_seen_date:getTodayStr(),
-      next_show_date:nextDate.toISOString().split('T')[0]
+      user_id:currentUser.id,puzzle_id:puzzleId,answered_correct:correct,
+      response_time_seconds:responseTime,times_seen:1,times_correct:correct?1:0,
+      last_seen_date:getTodayStr(),next_show_date:nextDate.toISOString().split('T')[0]
     }).select().single();
     if(data)userHistory[puzzleId]=data;
   }
 }
 
 function addFeedback(card,ok,text){
-  const fb=document.createElement('div');
-  fb.className=`feedback ${ok?'correct':'wrong'}`;
-  fb.textContent=(ok?'✓ ':'✗ ')+text;
-  card.appendChild(fb);
+  const fb=document.createElement('div');fb.className=`feedback ${ok?'correct':'wrong'}`;
+  fb.textContent=(ok?'✓ ':'✗ ')+text;card.appendChild(fb);
 }
 
 function addNext(card){
   if(!sessionActive)return;
-  const btn=document.createElement('button');
-  btn.className='next-btn';
-  btn.textContent='→ Next Puzzle';
+  const btn=document.createElement('button');btn.className='next-btn';btn.textContent='→ Next Puzzle';
   btn.onclick=()=>{if(sessionActive)renderNextPuzzle();};
   card.appendChild(btn);
 }
 
 // ============================================================
-// MEMORY GAME (emoji pairs — generated dynamically)
+// MEMORY GAME
 // ============================================================
 function renderMemoryGame(area,p){
   const emojis=['🌟','🎯','🔥','💡','🎭','🧩','🎲','🌊','🌙','⚡','🎸','🦋','🌺','🚀','🎨','🦁'];
-  const pairCount=p.difficulty===1?6:p.difficulty===2?8:10;
+  const pairCount=p.difficulty===1?6:8;
   const picked=[...emojis].sort(()=>Math.random()-0.5).slice(0,Math.min(pairCount,8));
   const pairs=[...picked,...picked].sort(()=>Math.random()-0.5);
   const state={pairs,revealed:[],matched:[],locked:false};
-
   const cols=picked.length<=6?3:4;
-  const card=document.createElement('div');
-  card.className='puzzle-card';
+  const card=document.createElement('div');card.className='puzzle-card';
   card.innerHTML=`<div class="puzzle-counter">Puzzle #${puzzlesCompleted+1} <span class="mult-badge">${multiplier}× pts</span></div>
     <div class="puzzle-q">Match all <strong>${picked.length} pairs</strong> of emojis</div>`;
-
-  const grid=document.createElement('div');
-  grid.className='memory-grid';
+  const grid=document.createElement('div');grid.className='memory-grid';
   grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
   pairs.forEach((emoji,i)=>{
-    const cell=document.createElement('div');
-    cell.className='mem-cell';cell.dataset.i=i;cell.dataset.e=emoji;
+    const cell=document.createElement('div');cell.className='mem-cell';
+    cell.dataset.i=i;cell.dataset.e=emoji;
     cell.onclick=()=>memClick(cell,state,grid,card,p);
     grid.appendChild(cell);
   });
-  card.appendChild(grid);
-  area.appendChild(card);
+  card.appendChild(grid);area.appendChild(card);
 }
 
 function memClick(cell,state,grid,card,p){
@@ -904,11 +843,9 @@ function memClick(cell,state,grid,card,p){
       state.matched.push(a,b);state.revealed=[];state.locked=false;
       score+=5;document.getElementById('g-score').textContent=Math.round(score*multiplier);
       if(state.matched.length===state.pairs.length){
-        recordAnswer(p,true);
-        addFeedback(card,true,'All pairs matched! Excellent memory.');
-        addNext(card);
+        recordAnswer(p,true);addFeedback(card,true,'All pairs matched!');addNext(card);
       }
-    }else{
+    } else {
       cells[a].classList.add('wrong-flash');cells[b].classList.add('wrong-flash');
       setTimeout(()=>{
         cells[a].textContent='';cells[a].classList.remove('revealed','wrong-flash');
@@ -924,50 +861,47 @@ function memClick(cell,state,grid,card,p){
 // ============================================================
 async function endSession(){
   clearInterval(timerInterval);
+  document.removeEventListener('visibilitychange',handleVisibility);
+  sessionStorage.removeItem('gb_active_session');
+  if(!sessionConfirmed||!currentSessionId){
+    showScreen('screen-done');
+    document.getElementById('d-score').textContent=0;
+    document.getElementById('d-correct').textContent=0;
+    document.getElementById('d-puzzles').textContent=0;
+    document.getElementById('d-accuracy').textContent='0%';
+    return;
+  }
   const finalScore=Math.round(score*multiplier);
-
   await sb.from('sessions').update({
-    ended_at:new Date().toISOString(),
-    score:finalScore,
-    puzzles_completed:puzzlesCompleted,
-    correct_count:correctCount
+    ended_at:new Date().toISOString(),score:finalScore,
+    puzzles_completed:puzzlesCompleted,correct_count:correctCount
   }).eq('id',currentSessionId);
-
   const{data:pr}=await sb.from('profiles').select('best_score').eq('id',currentUser.id).single();
   if(finalScore>(pr?.best_score||0))await sb.from('profiles').update({best_score:finalScore}).eq('id',currentUser.id);
-
   document.getElementById('d-score').textContent=finalScore;
   document.getElementById('d-correct').textContent=correctCount;
   document.getElementById('d-puzzles').textContent=puzzlesCompleted;
   const acc=puzzlesCompleted>0?Math.round(correctCount/puzzlesCompleted*100):0;
   document.getElementById('d-accuracy').textContent=acc+'%';
-
-  // Session insights
   renderSessionInsights();
   showScreen('screen-done');
 }
 
 function renderSessionInsights(){
-  const container=document.getElementById('done-insights');
-  container.innerHTML='';
+  const container=document.getElementById('done-insights');container.innerHTML='';
   const typesPlayed={};
   sessionHistory.forEach(h=>{
     if(!typesPlayed[h.type])typesPlayed[h.type]={correct:0,total:0};
-    typesPlayed[h.type].total++;
-    if(h.correct)typesPlayed[h.type].correct++;
+    typesPlayed[h.type].total++;if(h.correct)typesPlayed[h.type].correct++;
   });
   Object.keys(typesPlayed).forEach(t=>{
     const acc=Math.round(typesPlayed[t].correct/typesPlayed[t].total*100);
     const cls=acc>=80?'acc-high':acc>=60?'acc-mid':'acc-low';
-    const row=document.createElement('div');
-    row.className='insight-row';
-    row.innerHTML=`<div class="insight-type">${TYPE_LABELS[t]||t}</div>
-      <div class="insight-acc ${cls}">${acc}%</div>`;
+    const row=document.createElement('div');row.className='insight-row';
+    row.innerHTML=`<div class="insight-type">${TYPE_LABELS[t]||t}</div><div class="insight-acc ${cls}">${acc}%</div>`;
     container.appendChild(row);
   });
-  if(Object.keys(typesPlayed).length===0){
-    container.innerHTML='<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted);">No puzzles completed.</div>';
-  }
+  if(!Object.keys(typesPlayed).length)container.innerHTML='<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted);">No puzzles completed.</div>';
 }
 
 // ============================================================
@@ -978,6 +912,21 @@ function getYesterdayStr(){const d=new Date();d.setDate(d.getDate()-1);return`${
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 function showMsg(id,text,type){const el=document.getElementById(id);el.textContent=text;el.className=`msg ${type}`;}
 function clearMsg(id){const el=document.getElementById(id);el.className='msg';el.textContent='';}
+
+// ============================================================
+// BOOT
+// ============================================================
+window.addEventListener('beforeunload',(e)=>{
+  if(sessionActive&&puzzlesCompleted>0){
+    e.preventDefault();
+    e.returnValue='Your session is still active. Progress will be saved.';
+  }
+});
+
+window.addEventListener('popstate',()=>{
+  if(sessionActive){history.pushState(null,'',window.location.href);}
+});
+history.pushState(null,'',window.location.href);
 
 init();
 </script>
