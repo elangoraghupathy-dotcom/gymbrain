@@ -338,6 +338,11 @@ async function init(){
       await ensureProfile();
       await loadHome();
       showScreen('screen-home');
+      // If redirected back to landing page, push to /app
+      if(window.location.pathname==='/'||window.location.pathname===''){
+        window.location.href='https://gymbrain.in/app';
+        return;
+      }
     }
     if(event==='SIGNED_OUT'){currentUser=null;showScreen('screen-auth');}
   });
@@ -357,7 +362,7 @@ async function ensureProfile(){
 async function signInWithGoogle(){
   const btn=document.getElementById('google-btn');
   btn.disabled=true;btn.textContent='Redirecting to Google...';
-  const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});
+  const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://gymbrain.in/app'}});
   if(error){showMsg('auth-msg',error.message,'error');btn.disabled=false;btn.innerHTML=gBtnHTML();}
 }
 
