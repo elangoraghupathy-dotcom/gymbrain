@@ -84,9 +84,18 @@
   .mode-mult{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent3);margin-top:6px;}
   .mode-btn.selected .mode-mult{color:var(--accent);}
   .mode-icon{font-size:18px;margin-bottom:6px;}
-  .cooldown-card{background:rgba(255,61,110,0.05);border:1px solid rgba(255,61,110,0.2);border-radius:16px;padding:24px;width:100%;text-align:center;margin-top:16px;}
-  .cooldown-title{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--accent2);margin-bottom:8px;}
-  .cooldown-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.8;letter-spacing:1px;}
+  .cooldown-card{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:32px 28px;width:100%;margin-top:16px;}
+  .cooldown-done-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(200,255,0,0.08);border:1px solid rgba(200,255,0,0.2);border-radius:100px;padding:6px 16px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;}
+  .cooldown-title{font-family:'Syne',sans-serif;font-weight:800;font-size:32px;letter-spacing:-1px;color:var(--text);margin-bottom:6px;line-height:1.1;}
+  .cooldown-title span{color:var(--accent);}
+  .cooldown-message{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.9;letter-spacing:0.5px;margin-bottom:24px;}
+  .cooldown-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;}
+  .cooldown-stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 10px;text-align:center;}
+  .cooldown-stat-val{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;color:var(--accent);line-height:1;}
+  .cooldown-stat-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;margin-top:4px;text-transform:uppercase;}
+  .cooldown-unlock{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;}
+  .cooldown-unlock-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;}
+  .cooldown-unlock-time{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--accent3);letter-spacing:-0.5px;}
   .cooldown-sub strong{color:var(--accent3);}
 
   /* GAME HUD */
@@ -246,8 +255,18 @@
     </div>
     <button class="primary-btn" id="begin-btn" onclick="beginSession()">BEGIN SESSION</button>
     <div class="cooldown-card" id="cooldown-card" style="display:none;">
-      <div class="cooldown-title">✓ Session Complete</div>
-      <div class="cooldown-sub" id="cooldown-text">—</div>
+      <div class="cooldown-done-badge">✓ Today's session complete</div>
+      <div class="cooldown-title">Well done.<br><span>Come back tomorrow.</span></div>
+      <div class="cooldown-message" id="cooldown-message">Your brain has done its work for today.</div>
+      <div class="cooldown-stats">
+        <div class="cooldown-stat"><div class="cooldown-stat-val" id="cd-score">—</div><div class="cooldown-stat-lbl">Score</div></div>
+        <div class="cooldown-stat"><div class="cooldown-stat-val" id="cd-accuracy">—</div><div class="cooldown-stat-lbl">Accuracy</div></div>
+        <div class="cooldown-stat"><div class="cooldown-stat-val" id="cd-streak">—</div><div class="cooldown-stat-lbl">🔥 Streak</div></div>
+      </div>
+      <div class="cooldown-unlock">
+        <div class="cooldown-unlock-label">Next session unlocks in</div>
+        <div class="cooldown-unlock-time" id="cd-unlock">—</div>
+      </div>
     </div>
   </div>
 
@@ -425,12 +444,18 @@ async function loadHome(){
   const{data:todaySession}=await sb.from('sessions').select('*').eq('user_id',currentUser.id).eq('session_date',today).single();
   const isAdmin=currentUser?.email===ADMIN_EMAIL;
   if(todaySession&&!isAdmin){
-    document.getElementById('begin-btn').disabled=true;
+    document.getElementById('begin-btn').style.display='none';
     document.getElementById('cooldown-card').style.display='block';
     const nextMidnight=new Date();nextMidnight.setHours(24,0,0,0);
     const diffMins=Math.round((nextMidnight-new Date())/60000);
     const hrs=Math.floor(diffMins/60),mins=diffMins%60;
-    document.getElementById('cooldown-text').innerHTML=`You scored <strong>${todaySession.score} pts</strong> today.<br>Next session unlocks in <strong>${hrs}h ${mins}m</strong>.<br>Streak: <strong>${profile?.streak||0} days 🔥</strong>`;
+    const acc=todaySession.puzzles_completed>0?Math.round(todaySession.correct_count/todaySession.puzzles_completed*100):0;
+    const appreciation=todaySession.score>200?'Outstanding session. Your brain is getting stronger.':todaySession.score>100?'Solid work today. Consistency builds real gains.':'Good start. Every rep counts. See you tomorrow.';
+    document.getElementById('cd-score').textContent=todaySession.score||0;
+    document.getElementById('cd-accuracy').textContent=acc+'%';
+    document.getElementById('cd-streak').textContent=(profile?.streak||0)+'d';
+    document.getElementById('cd-unlock').textContent=hrs+'h '+mins+'m';
+    document.getElementById('cooldown-message').textContent=appreciation;
   }else if(todaySession&&isAdmin){
     document.getElementById('begin-btn').disabled=false;
     document.getElementById('begin-btn').textContent='🧪 TEST MODE — BEGIN SESSION';
