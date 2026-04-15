@@ -996,6 +996,10 @@ function clearMsg(id){const el=document.getElementById(id);el.className='msg';el
 // ABANDON / CHANGE MODE
 // ============================================================
 function showAbandonModal(){
+  // Clear any pending mode change confirmation
+  if(window._modeChangeTimeout){clearTimeout(window._modeChangeTimeout);window._modeChangeTimeout=null;}
+  const typeTag=document.getElementById('g-type');
+  if(typeTag){typeTag.style.color='';typeTag.style.borderColor='';}
   // Pause timer while modal is open
   if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
 
@@ -1100,43 +1104,53 @@ function changeSessionMode(newMins){
   const original=typeTag.textContent;
   typeTag.textContent=`✓ Changed to ${newMins} min · ${multiplier}× pts`;
   typeTag.style.color='var(--accent)';
-  typeTag.style.borderColor='var(--accent)';
-  setTimeout(()=>{
-    typeTag.textContent=original;
-    typeTag.style.color='';
-    typeTag.style.borderColor='';
+  typeTag.style.borderColor='rgba(200,255,0,0.3)';
+  if(window._modeChangeTimeout)clearTimeout(window._modeChangeTimeout);
+  window._modeChangeTimeout=setTimeout(()=>{
+    const el=document.getElementById('g-type');
+    if(el){el.textContent=original;el.style.color='';el.style.borderColor='';}
   },2000);
 
-  // Restart timer
-  clearInterval(timerInterval);
-  timerInterval=null;
+  // Restart timer cleanly
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
   if(sessionActive&&sessionSeconds>0){
     timerInterval=setInterval(timerTick,1000);
   }
 }
 
 async function abandonSession(freeexit){
+  // Clear any pending timeouts
+  if(window._modeChangeTimeout){clearTimeout(window._modeChangeTimeout);window._modeChangeTimeout=null;}
+
+  // Hide modal immediately
   document.getElementById('abandon-modal').classList.remove('active');
-  clearInterval(timerInterval);
-  timerInterval=null;
+
+  // Stop timer
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
   sessionActive=false;
   document.removeEventListener('visibilitychange',handleVisibility);
   sessionStorage.removeItem('gb_active_session');
 
   if(freeexit){
-    // Delete session from DB if it was created
-    if(currentSessionId){
-      await sb.from('sessions').delete().eq('id',currentSessionId);
-      await sb.from('profiles').update({
-        total_sessions:Math.max(0,(await sb.from('profiles').select('total_sessions').eq('id',currentUser.id).single()).data?.total_sessions-1||0)
-      }).eq('id',currentUser.id);
+    // Exit without lock — reset or delete session record
+    if(currentSessionId&&sessionConfirmed){
+      try{
+        // Reset session to blank state (don't delete — admin may have reset record)
+        await sb.from('sessions').update({
+          score:0,puzzles_completed:0,correct_count:0,ended_at:null
+        }).eq('id',currentSessionId);
+        // Decrement total_sessions on profile
+        const{data:pr}=await sb.from('profiles').select('total_sessions').eq('id',currentUser.id).single();
+        const newTotal=Math.max(0,(pr?.total_sessions||1)-1);
+        await sb.from('profiles').update({total_sessions:newTotal}).eq('id',currentUser.id);
+      } catch(e){console.warn('Free exit cleanup failed:',e);}
     }
     sessionConfirmed=false;
     currentSessionId=null;
     await loadHome();
     showScreen('screen-home');
   } else {
-    // Save score and show done screen
+    // Save score and end
     await endSession();
   }
 }
