@@ -610,25 +610,37 @@ async function confirmSession(){
   sessionConfirmed=true;
   const today=getTodayStr();
   const yesterday=getYesterdayStr();
+  const isAdminUser=currentUser?.email===ADMIN_EMAIL;
 
-  // Try to create session record
-  const{data:newSession,error}=await sb.from('sessions').insert({user_id:currentUser.id,session_date:today}).select().single();
-
-  if(error){
-    // Session already exists — fetch it
-    const{data:existing}=await sb.from('sessions').select('id').eq('user_id',currentUser.id).eq('session_date',today).single();
-    if(existing)currentSessionId=existing.id;
-    // Still update profile even if session already existed
-  } else {
-    currentSessionId=newSession.id;
+  if(isAdminUser){
+    // Admin: delete any existing session for today first, then create fresh
+    await sb.from('sessions').delete().eq('user_id',currentUser.id).eq('session_date',today);
   }
 
-  // Always update profile streak + session count
-  const{data:p}=await sb.from('profiles').select('total_sessions,streak,last_streak_day').eq('id',currentUser.id).single();
+  // Create fresh session record
+  const{data:newSession,error}=await sb.from('sessions')
+    .insert({user_id:currentUser.id,session_date:today})
+    .select().single();
+
+  if(error){
+    // Non-admin fallback: session already exists, fetch it
+    const{data:existing}=await sb.from('sessions')
+      .select('id').eq('user_id',currentUser.id).eq('session_date',today).single();
+    if(existing)currentSessionId=existing.id;
+    console.warn('Session insert failed, using existing:',error.message);
+  } else {
+    currentSessionId=newSession.id;
+    console.log('Session created:',currentSessionId);
+  }
+
+  // Update profile streak + session count
+  const{data:p}=await sb.from('profiles')
+    .select('total_sessions,streak,last_streak_day')
+    .eq('id',currentUser.id).single();
   let streak=p?.streak||0;
   if(p?.last_streak_day===yesterday)streak+=1;
   else if(p?.last_streak_day!==today)streak=1;
-  
+
   const{error:profileError}=await sb.from('profiles').update({
     total_sessions:(p?.total_sessions||0)+1,
     streak,
@@ -636,6 +648,7 @@ async function confirmSession(){
   }).eq('id',currentUser.id);
 
   if(profileError)console.error('Profile update failed:',profileError);
+  else console.log('Profile updated — sessions:',(p?.total_sessions||0)+1,'streak:',streak);
 }
 
 function buildSmartQueue(){
