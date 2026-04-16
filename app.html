@@ -177,8 +177,8 @@
   .return-card p{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:2;letter-spacing:0.5px;}
   .return-card strong{color:var(--accent3);}
   /* ABANDON */
-  .abandon-btn{background:transparent;border:1px solid var(--border);border-radius:10px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
-  .abandon-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+  .abandon-btn{background:rgba(255,61,110,0.08);border:1px solid rgba(255,61,110,0.3);border-radius:10px;padding:8px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent2);letter-spacing:1px;cursor:pointer;transition:all 0.2s;font-weight:700;}
+  .abandon-btn:hover{background:rgba(255,61,110,0.15);border-color:var(--accent2);}
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
   .modal-overlay.active{display:flex;}
   .modal-box{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:36px 32px;width:100%;max-width:400px;text-align:center;}
@@ -379,7 +379,7 @@
     <button onclick="startSessionFromWelcome()" style="width:100%;margin-top:20px;background:var(--accent);color:#080810;border:none;border-radius:12px;padding:18px;font-family:'Syne',sans-serif;font-weight:700;font-size:18px;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
       Let's Train 🧠
     </button>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-align:center;margin-top:12px;letter-spacing:1px;">Tap ⚙ Session anytime to pause, change duration, or exit</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-align:center;margin-top:12px;letter-spacing:1px;">Tap ⏸ Pause / End anytime to stop, change duration, or save your score</div>
   </div>
 
   <!-- GAME -->
@@ -387,7 +387,7 @@
     <div class="hud">
       <div><div class="hud-lbl">Time Left</div><div class="hud-timer" id="g-timer">00:00</div></div>
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
-        <button class="abandon-btn" onclick="showAbandonModal()">⚙ Session</button>
+        <button class="abandon-btn" onclick="showAbandonModal()">⏸ Pause / End</button>
       </div>
       <div class="hud-right"><div class="hud-lbl">Score</div><div class="hud-score-val" id="g-score">0</div></div>
     </div>
@@ -490,7 +490,7 @@
 <!-- ABANDON / CHANGE MODE MODAL -->
 <div class="modal-overlay" id="abandon-modal">
   <div class="modal-box">
-    <div class="modal-title" id="modal-title">Session Options</div>
+    <div class="modal-title" id="modal-title">Pause / End Session</div>
     <div class="modal-sub" id="modal-sub">—</div>
     <div class="modal-actions" id="modal-actions"></div>
   </div>
