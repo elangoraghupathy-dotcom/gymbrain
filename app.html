@@ -1120,6 +1120,10 @@ async function recordAnswer(p,correct){
 
 async function updatePuzzleHistory(puzzleId,correct,responseTime){
   if(!currentUser||!sessionConfirmed)return;
+  // Skip tracking for grid memory puzzles — they are dynamically generated
+  // so the same puzzle_id produces a different experience every time
+  const puzzle=allPuzzles.find(p=>p.id===puzzleId);
+  if(puzzle&&puzzle.input_type==='grid')return;
   const existing=userHistory[puzzleId];
   if(existing){
     const newTimesCorrect=(existing.times_correct||0)+(correct?1:0);
@@ -1161,7 +1165,15 @@ function addNext(card){
 // MEMORY GAME
 // ============================================================
 function renderMemoryGame(area,p){
-  const emojis=['🌟','🎯','🔥','💡','🎭','🧩','🎲','🌊','🌙','⚡','🎸','🦋','🌺','🚀','🎨','🦁'];
+  // Large emoji pool — randomly sampled each game so layout is always different
+  const emojiPool=[
+    '🌟','🎯','🔥','💡','🎭','🧩','🎲','🌊','🌙','⚡','🎸','🦋','🌺','🚀','🎨','🦁',
+    '🐬','🦊','🌈','🍕','🎪','🏆','🎵','🌴','🦋','🔮','🎃','🌵','🦄','🍀','🎠','🌸',
+    '🐧','🦁','🍉','🎹','🌍','🦅','🎭','🍦','🌻','🎪','🦋','🔑','🎡','🌊','🦜','🍄'
+  ];
+  // Pick random emojis from pool — different every time
+  const shuffledPool=[...emojiPool].sort(()=>Math.random()-0.5);
+  const emojis=shuffledPool;
   const pairCount=p.difficulty===1?6:8;
   const picked=[...emojis].sort(()=>Math.random()-0.5).slice(0,Math.min(pairCount,8));
   const pairs=[...picked,...picked].sort(()=>Math.random()-0.5);
