@@ -146,7 +146,7 @@
 
   /* MEMORY */
   .memory-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:300px;margin:0 auto;}
-  .mem-cell{aspect-ratio:1;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;transition:all 0.18s;user-select:none;}
+  .mem-cell{aspect-ratio:1;border-radius:12px;background:var(--card);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer;transition:all 0.2s;user-select:none;min-height:72px;}
   .mem-cell:hover{border-color:var(--border2);transform:scale(1.05);}
   .mem-cell.revealed{background:var(--card2);border-color:var(--accent3);}
   .mem-cell.matched{background:rgba(200,255,0,0.08);border-color:var(--accent);}
@@ -836,23 +836,57 @@ function buildSmartQueue(){
   const newQueue=[];
 
   // ── Score and sort each puzzle ──
+  const today=getTodayStr();
+
   const scored=allPuzzles
     .filter(p=>!seenInSession.has(p.id)) // never repeat in session
     .map(p=>{
       const h=userHistory[p.id];
       let priority=0;
-      if(!h) priority=60; // unseen = high priority
-      else{
-        const acc=h.times_seen>0?h.times_correct/h.times_seen:0;
-        if(acc<0.5) priority=100; // got wrong = highest priority
-        else if(acc<0.8) priority=70;
-        else priority=10; // mastered = show less
+
+      if(!h){
+        // Never seen before — highest priority
+        priority=80;
+      } else {
+        // Check spaced repetition — if next_show_date is in future, deprioritise heavily
+        const nextShow=h.next_show_date||today;
+        const isDue=nextShow<=today;
+        const lastSeen=h.last_seen_date||'';
+        const seenYesterday=lastSeen===getYesterdayStr();
+        const seenToday=lastSeen===today;
+
+        if(seenToday){
+          // Seen in a previous session today (admin replay) — lowest priority
+          priority=-50;
+        } else if(!isDue){
+          // Not due yet (spaced repetition says wait) — skip unless desperate
+          priority=-20;
+        } else if(seenYesterday){
+          // Seen yesterday — only show if got wrong (spaced rep says 1 day)
+          const acc=h.times_seen>0?h.times_correct/h.times_seen:0;
+          if(acc<0.5) priority=90; // got wrong yesterday — definitely show
+          else priority=20; // got right yesterday — low priority
+        } else {
+          // Due and not seen recently — normal scoring
+          const acc=h.times_seen>0?h.times_correct/h.times_seen:0;
+          if(acc<0.5) priority=100; // historically wrong = highest
+          else if(acc<0.8) priority=65;
+          else priority=15; // mastered = low but still show occasionally
+        }
       }
+
       // Difficulty match bonus
       if(p.difficulty===currentDifficulty) priority+=15;
       else if(Math.abs(p.difficulty-currentDifficulty)===1) priority+=5;
       else priority-=5;
+
       return{...p,priority};
+    })
+    // Filter out heavily deprioritised puzzles if enough others available
+    .filter((p,_,arr)=>{
+      const goodCount=arr.filter(x=>x.priority>0).length;
+      // Keep negatives only if we don't have enough positives
+      return p.priority>0||(goodCount<30);
     });
 
   // ── Build per-type pools, sorted by priority ──
@@ -1141,17 +1175,28 @@ function renderMemoryGame(area,p){
   pairs.forEach((emoji,i)=>{
     const cell=document.createElement('div');cell.className='mem-cell';
     cell.dataset.i=i;cell.dataset.e=emoji;
+    cell.textContent='?';
+    cell.style.cssText='font-size:32px;color:var(--muted);font-weight:700;letter-spacing:0;';
     cell.onclick=()=>memClick(cell,state,grid,card,p);
     grid.appendChild(cell);
   });
-  card.appendChild(grid);area.appendChild(card);
+
+  // Tap hint
+  const hint=document.createElement('div');
+  hint.style.cssText='font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted);text-align:center;margin-top:12px;letter-spacing:1px;';
+  hint.textContent='TAP CARDS TO REVEAL — FIND THE MATCHING PAIRS';
+  card.appendChild(grid);
+  card.appendChild(hint);
+  area.appendChild(card);
 }
 
 async function memClick(cell,state,grid,card,p){
   if(state.locked)return;
   const i=parseInt(cell.dataset.i);
   if(state.matched.includes(i)||state.revealed.includes(i))return;
-  cell.textContent=cell.dataset.e;cell.classList.add('revealed');state.revealed.push(i);
+  cell.textContent=cell.dataset.e;
+  cell.style.cssText='font-size:32px;color:var(--text);';
+  cell.classList.add('revealed');state.revealed.push(i);
   if(state.revealed.length===2){
     state.locked=true;
     const[a,b]=state.revealed;const cells=grid.querySelectorAll('.mem-cell');
@@ -1165,8 +1210,8 @@ async function memClick(cell,state,grid,card,p){
     } else {
       cells[a].classList.add('wrong-flash');cells[b].classList.add('wrong-flash');
       setTimeout(()=>{
-        cells[a].textContent='';cells[a].classList.remove('revealed','wrong-flash');
-        cells[b].textContent='';cells[b].classList.remove('revealed','wrong-flash');
+        cells[a].textContent='?';cells[a].style.cssText='font-size:32px;color:var(--muted);font-weight:700;';cells[a].classList.remove('revealed','wrong-flash');
+        cells[b].textContent='?';cells[b].style.cssText='font-size:32px;color:var(--muted);font-weight:700;';cells[b].classList.remove('revealed','wrong-flash');
         state.revealed=[];state.locked=false;
       },800);
     }
