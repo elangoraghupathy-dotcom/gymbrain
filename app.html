@@ -890,11 +890,17 @@ function buildSmartQueue(){
 
       return{...p,priority};
     })
-    // Filter out heavily deprioritised puzzles if enough others available
+    // Filter out not-due puzzles if enough fresh ones available
     .filter((p,_,arr)=>{
+      // Count truly fresh puzzles (never seen or due today)
+      const freshCount=arr.filter(x=>x.priority>=60).length;
       const goodCount=arr.filter(x=>x.priority>0).length;
-      // Keep negatives only if we don't have enough positives
-      return p.priority>0||(goodCount<30);
+
+      if(p.priority>=60) return true;  // always include fresh/unseen
+      if(p.priority>0 && goodCount<80) return true;  // include due puzzles if pool thin
+      if(p.priority<=0 && freshCount<20) return true; // only include not-due if desperate
+      if(p.priority<=0) return false;  // enough fresh — skip not-due puzzles
+      return true;
     });
 
   // ── Build per-type pools, sorted by priority ──
