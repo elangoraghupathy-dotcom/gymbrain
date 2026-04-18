@@ -20,12 +20,10 @@
   .screen{display:none;width:100%;flex-direction:column;align-items:center;}
   .screen.active{display:flex;}
 
-  /* LOGO */
   .logo-mark{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(48px,12vw,80px);letter-spacing:-2px;color:var(--text);text-align:center;line-height:1;}
   .logo-mark span{color:var(--accent);}
   .logo-tagline{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-top:10px;text-align:center;}
 
-  /* AUTH */
   .auth-card{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:36px 32px;width:100%;margin-top:40px;}
   .auth-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:4px;}
   .auth-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:28px;}
@@ -49,7 +47,6 @@
   .msg.error{background:rgba(255,61,110,0.1);color:var(--accent2);border:1px solid rgba(255,61,110,0.2);display:block;}
   .msg.success{background:rgba(200,255,0,0.08);color:var(--accent);border:1px solid rgba(200,255,0,0.2);display:block;}
 
-  /* HOME */
   .home-header{display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:32px;}
   .home-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;letter-spacing:-1px;}
   .home-logo span{color:var(--accent);}
@@ -63,7 +60,6 @@
   .date-info .day{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1;}
   .date-info .date{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;margin-top:4px;}
 
-  /* WEAK AREAS */
   .weak-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:20px 24px;width:100%;margin-bottom:24px;}
   .weak-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;}
   .weak-bars{display:flex;flex-direction:column;gap:8px;}
@@ -73,7 +69,6 @@
   .weak-bar-fill{height:100%;border-radius:3px;transition:width 0.5s;}
   .weak-bar-pct{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);width:32px;text-align:right;}
 
-  /* MODE */
   .mode-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;align-self:flex-start;margin-bottom:12px;}
   .mode-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;margin-bottom:24px;}
   .mode-btn{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 8px;cursor:pointer;transition:all 0.2s;text-align:center;}
@@ -98,7 +93,6 @@
   .cooldown-unlock-time{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--accent3);letter-spacing:-0.5px;}
   .cooldown-sub strong{color:var(--accent3);}
 
-  /* GAME HUD */
   .hud{width:100%;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
   .hud-timer{font-family:'Syne',sans-serif;font-weight:800;font-size:48px;letter-spacing:-2px;color:var(--accent);line-height:1;transition:color 0.3s;}
   .hud-timer.warning{color:var(--accent2);animation:pulse 1s infinite;}
@@ -109,7 +103,6 @@
   .progress-bar{width:100%;height:2px;background:var(--border);border-radius:2px;margin-bottom:8px;overflow:hidden;}
   .progress-fill{height:100%;background:var(--accent);transition:width 1s linear,background 0.5s;}
 
-  /* DIFFICULTY + TYPE */
   .puzzle-meta{display:flex;align-items:center;gap:8px;margin-bottom:20px;}
   .type-tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent3);border:1px solid rgba(0,229,255,0.3);border-radius:100px;padding:4px 12px;}
   .diff-tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;border-radius:100px;padding:4px 12px;}
@@ -117,7 +110,6 @@
   .diff-2{color:var(--accent4);border:1px solid rgba(255,149,0,0.3);}
   .diff-3{color:var(--accent2);border:1px solid rgba(255,61,110,0.3);}
 
-  /* PUZZLE CARD */
   .puzzle-card{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:36px 28px;width:100%;animation:rise 0.35s cubic-bezier(0.16,1,0.3,1);}
   @keyframes rise{from{opacity:0;transform:translateY(16px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
   .puzzle-counter{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:16px;}
@@ -144,7 +136,6 @@
   .next-btn:hover{border-color:var(--accent);color:var(--accent);}
   .mult-badge{display:inline-block;background:rgba(255,149,0,0.1);border:1px solid rgba(255,149,0,0.3);color:var(--accent4);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;padding:3px 10px;border-radius:100px;margin-left:8px;vertical-align:middle;}
 
-  /* MEMORY */
   .memory-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:300px;margin:0 auto;}
   .mem-cell{aspect-ratio:1;border-radius:12px;background:var(--card);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer;transition:all 0.2s;user-select:none;min-height:72px;}
   .mem-cell:hover{border-color:var(--border2);transform:scale(1.05);}
@@ -152,7 +143,6 @@
   .mem-cell.matched{background:rgba(200,255,0,0.08);border-color:var(--accent);}
   .mem-cell.wrong-flash{background:rgba(255,61,110,0.1);border-color:var(--accent2);}
 
-  /* DONE */
   .done-hero{text-align:center;width:100%;margin-bottom:32px;}
   .done-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;}
   .done-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(48px,12vw,80px);letter-spacing:-2px;line-height:0.9;color:var(--accent);}
@@ -163,7 +153,6 @@
   .done-stat-val{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:var(--accent3);}
   .done-stat-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-top:4px;}
 
-  /* INSIGHT CARD */
   .insight-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:24px 28px;width:100%;margin-bottom:16px;}
   .insight-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
   .insight-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
@@ -176,7 +165,6 @@
   .return-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:24px 28px;width:100%;text-align:center;}
   .return-card p{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:2;letter-spacing:0.5px;}
   .return-card strong{color:var(--accent3);}
-  /* ABANDON */
   .abandon-btn{background:rgba(255,61,110,0.08);border:1px solid rgba(255,61,110,0.3);border-radius:10px;padding:8px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent2);letter-spacing:1px;cursor:pointer;transition:all 0.2s;font-weight:700;}
   .abandon-btn:hover{background:rgba(255,61,110,0.15);border-color:var(--accent2);}
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
@@ -202,7 +190,6 @@
   .spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:40px auto;}
   @keyframes spin{to{transform:rotate(360deg)}}
 
-  /* CELEBRATION */
   .celebration-overlay{position:fixed;inset:0;pointer-events:none;z-index:500;overflow:hidden;}
   .confetti-piece{position:absolute;width:10px;height:10px;top:-20px;animation:confetti-fall linear forwards;}
   @keyframes confetti-fall{
@@ -216,7 +203,6 @@
   @keyframes fade-up{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
   .loading-text{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-align:center;margin-top:8px;}
 
-  /* STREAK VISUALIZATION */
   .streak-visual{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:20px 24px;width:100%;margin-top:16px;}
   .streak-visual-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;}
   .streak-dots{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
@@ -228,14 +214,12 @@
   .streak-loss-warn{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent2);text-align:center;margin-top:12px;line-height:1.7;letter-spacing:0.5px;}
   .streak-loss-warn strong{color:var(--accent2);}
 
-  /* TOMORROW PREVIEW */
   .tomorrow-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:20px 24px;width:100%;margin-top:16px;}
   .tomorrow-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;}
   .tomorrow-content{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;}
   .tomorrow-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.7;letter-spacing:0.5px;}
   .tomorrow-sub strong{color:var(--accent3);}
 
-  /* PERSONAL BEST */
   .pb-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:20px 24px;width:100%;margin-top:16px;display:flex;justify-content:space-between;align-items:center;}
   .pb-left .pb-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
   .pb-left .pb-val{font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:var(--accent);letter-spacing:-1px;margin-top:2px;}
@@ -244,7 +228,6 @@
   .pb-right .pb-best{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:0.5px;}
   .pb-new-record{background:rgba(200,255,0,0.1);border:1px solid rgba(200,255,0,0.3);border-radius:8px;padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:1px;text-align:center;}
 
-  /* SHARE BUTTONS */
   .share-section{width:100%;margin-top:16px;}
   .share-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;text-align:center;}
   .share-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;}
@@ -258,6 +241,9 @@
   .share-btn.instagram{background:rgba(225,48,108,0.1);border:1px solid rgba(225,48,108,0.3);color:#e1306c;}
   .share-btn.copy{background:rgba(200,255,0,0.08);border:1px solid rgba(200,255,0,0.2);color:var(--accent);}
   .share-grid-2{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+
+  /* POOL STATUS BADGE — shows during session */
+  .pool-badge{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;opacity:0.6;}
 </style>
 </head>
 <body>
@@ -319,7 +305,6 @@
       </div>
     </div>
 
-    <!-- WEAK AREAS -->
     <div class="weak-card" id="weak-card" style="display:none;">
       <div class="weak-title">Your Accuracy by Type</div>
       <div class="weak-bars" id="weak-bars"></div>
@@ -386,8 +371,9 @@
   <div class="screen" id="screen-game">
     <div class="hud">
       <div><div class="hud-lbl">Time Left</div><div class="hud-timer" id="g-timer">00:00</div></div>
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">
         <button class="abandon-btn" onclick="showAbandonModal()">⏸ Pause / End</button>
+        <div class="pool-badge" id="pool-badge"></div>
       </div>
       <div class="hud-right"><div class="hud-lbl">Score</div><div class="hud-score-val" id="g-score">0</div></div>
     </div>
@@ -404,26 +390,21 @@
 
   <!-- DONE -->
   <div class="screen" id="screen-done">
-
-    <!-- CROWN + APPRECIATION -->
     <div class="crown-badge" id="crown-badge">🏆</div>
     <div class="appreciation-msg" id="appreciation-msg">Well Done!</div>
     <div class="appreciation-sub" id="appreciation-sub">Your brain worked hard today.</div>
 
-    <!-- SCORE -->
     <div class="done-hero" style="margin-top:16px;">
       <div class="done-score" id="d-score">0</div>
       <div class="done-score-label">POINTS EARNED</div>
     </div>
 
-    <!-- STATS -->
     <div class="done-stats">
       <div class="done-stat"><div class="done-stat-val" id="d-correct">0</div><div class="done-stat-lbl">Correct</div></div>
       <div class="done-stat"><div class="done-stat-val" id="d-puzzles">0</div><div class="done-stat-lbl">Puzzles</div></div>
       <div class="done-stat"><div class="done-stat-val" id="d-accuracy">0%</div><div class="done-stat-lbl">Accuracy</div></div>
     </div>
 
-    <!-- PERSONAL BEST -->
     <div class="pb-card" id="pb-card">
       <div class="pb-left">
         <div class="pb-label">Today's Score</div>
@@ -435,50 +416,34 @@
       </div>
     </div>
 
-    <!-- STREAK VISUALIZATION -->
     <div class="streak-visual">
       <div class="streak-visual-title">Your Week</div>
       <div class="streak-dots" id="streak-dots"></div>
       <div class="streak-loss-warn" id="streak-warn"></div>
     </div>
 
-    <!-- TOMORROW PREVIEW -->
     <div class="tomorrow-card">
       <div class="tomorrow-title">Tomorrow's Focus</div>
       <div class="tomorrow-content" id="tomorrow-content">—</div>
       <div class="tomorrow-sub" id="tomorrow-sub">—</div>
     </div>
 
-    <!-- SESSION INSIGHTS -->
     <div class="insight-card">
       <div class="insight-title">Session Insights</div>
       <div id="done-insights"></div>
     </div>
 
-    <!-- SHARE -->
     <div class="share-section">
       <div class="share-title">Share your score</div>
       <div class="share-grid">
-        <button class="share-btn whatsapp" onclick="shareScore('whatsapp')">
-          <span class="share-icon">💬</span>WhatsApp
-        </button>
-        <button class="share-btn linkedin" onclick="shareScore('linkedin')">
-          <span class="share-icon">💼</span>LinkedIn
-        </button>
-        <button class="share-btn twitter" onclick="shareScore('twitter')">
-          <span class="share-icon">🐦</span>X / Twitter
-        </button>
+        <button class="share-btn whatsapp" onclick="shareScore('whatsapp')"><span class="share-icon">💬</span>WhatsApp</button>
+        <button class="share-btn linkedin" onclick="shareScore('linkedin')"><span class="share-icon">💼</span>LinkedIn</button>
+        <button class="share-btn twitter" onclick="shareScore('twitter')"><span class="share-icon">🐦</span>X / Twitter</button>
       </div>
       <div class="share-grid-2">
-        <button class="share-btn facebook" onclick="shareScore('facebook')">
-          <span class="share-icon">📘</span>Facebook
-        </button>
-        <button class="share-btn instagram" onclick="shareScore('instagram')">
-          <span class="share-icon">📸</span>Instagram
-        </button>
-        <button class="share-btn copy" onclick="shareScore('copy')" id="copy-btn">
-          <span class="share-icon">📋</span>Copy Text
-        </button>
+        <button class="share-btn facebook" onclick="shareScore('facebook')"><span class="share-icon">📘</span>Facebook</button>
+        <button class="share-btn instagram" onclick="shareScore('instagram')"><span class="share-icon">📸</span>Instagram</button>
+        <button class="share-btn copy" onclick="shareScore('copy')" id="copy-btn"><span class="share-icon">📋</span>Copy Text</button>
       </div>
     </div>
 
@@ -510,7 +475,7 @@ const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
 // ============================================================
 let currentUser=null,selectedMode=45,sessionSeconds=0,timerInterval=null;
 let totalSeconds=0,score=0,puzzlesCompleted=0,correctCount=0,multiplier=1;
-let sessionQueue=[],queueIndex=0,currentSessionId=null,isAuthSignup=true;
+let currentSessionId=null,isAuthSignup=true;
 let sessionHistory=[];
 let sessionActive=false;
 let sessionConfirmed=false;
@@ -526,6 +491,16 @@ const ADMIN_EMAIL='elangoraghupathy@gmail.com';
 const TYPES=['logic','math','word','sequence','visual','memory'];
 const TYPE_LABELS={logic:'🧩 Logic',math:'➕ Math',word:'🔤 Word',sequence:'🔢 Sequence',visual:'👁 Visual',memory:'🧠 Memory'};
 const DIFF_LABELS={1:'EASY',2:'MEDIUM',3:'HARD'};
+
+// ============================================================
+// FIX: PUZZLE DEDUPLICATION — SINGLE SOURCE OF TRUTH
+// seenThisSession tracks every puzzle ID actually shown during this session.
+// It persists for the ENTIRE session — no puzzle repeats until all are exhausted.
+// ============================================================
+let seenThisSession = new Set();   // IDs shown this session — NEVER clears mid-session
+let sessionQueue = [];             // Current flat queue of puzzles
+let queueIndex = 0;                // Pointer into sessionQueue
+let poolExhausted = false;         // True when all puzzles have been seen at least once
 
 // ============================================================
 // INIT
@@ -718,8 +693,18 @@ function selectMode(mins){
 }
 
 // ============================================================
-// SMART SESSION ENGINE
+// SMART SESSION ENGINE — FIXED
+//
+// KEY CHANGES vs old code:
+// 1. seenThisSession is a persistent Set for the entire session.
+//    It is ONLY reset in beginSession(), never in buildSmartQueue().
+// 2. buildSmartQueue() always rebuilds sessionQueue from scratch
+//    starting at index 0. It never appends — it replaces.
+// 3. When pool is exhausted (all puzzles seen), it recycles
+//    using LEAST-RECENTLY-SEEN order, still respecting interleaving.
+// 4. Pool status is shown in the HUD badge for debugging.
 // ============================================================
+
 async function beginSession(){
   if(!currentUser)return;
   const today=getTodayStr();
@@ -729,14 +714,19 @@ async function beginSession(){
     if(existing){await loadHome();return;}
   }
 
-  // Reset state — DB session created lazily on first answer
+  // ── FULL STATE RESET ──
   currentSessionId=null;
   sessionConfirmed=false;
   totalSeconds=selectedMode*60;
   sessionSeconds=totalSeconds;
   multiplier=multipliers[selectedMode];
   score=0;puzzlesCompleted=0;correctCount=0;sessionHistory=[];lastType=null;
-  sessionQueue=[];queueIndex=0;
+
+  // FIX: Reset deduplication state completely on new session
+  seenThisSession = new Set();
+  sessionQueue = [];
+  queueIndex = 0;
+  poolExhausted = false;
 
   setLoadingText('BUILDING YOUR SESSION');
   showScreen('screen-loading');
@@ -752,7 +742,6 @@ async function beginSession(){
   buildSmartQueue();
   sessionStorage.setItem('gb_active_session',JSON.stringify({mode:selectedMode,seconds:totalSeconds,multiplier,startedAt:Date.now()}));
 
-  // Show welcome screen for very first session
   const isFirstSession=!(await sb.from('sessions').select('id').eq('user_id',currentUser.id).limit(1)).data?.length;
   if(isFirstSession){
     showScreen('screen-welcome');
@@ -769,7 +758,6 @@ function startSessionFromWelcome(){
   renderNextPuzzle();
 }
 
-// Lazily confirm session in DB on first answer
 async function confirmSession(){
   if(sessionConfirmed)return;
   sessionConfirmed=true;
@@ -777,175 +765,165 @@ async function confirmSession(){
   const yesterday=getYesterdayStr();
   const isAdminUser=currentUser?.email===ADMIN_EMAIL;
 
-  // Check if a session already exists for today
   const{data:existing}=await sb.from('sessions')
     .select('id').eq('user_id',currentUser.id).eq('session_date',today).single();
 
   if(existing){
     if(isAdminUser){
-      // Admin replaying — reset the existing session record to fresh state
       await sb.from('sessions').update({
         started_at:new Date().toISOString(),
-        ended_at:null,
-        score:0,
-        puzzles_completed:0,
-        correct_count:0
+        ended_at:null,score:0,puzzles_completed:0,correct_count:0
       }).eq('id',existing.id);
       currentSessionId=existing.id;
-      console.log('Admin: session reset for replay. ID:',currentSessionId);
     } else {
-      // Regular user — use existing session
       currentSessionId=existing.id;
-      console.log('Using existing session:',currentSessionId);
     }
   } else {
-    // No session today — create fresh one
     const{data:newSession,error}=await sb.from('sessions')
       .insert({user_id:currentUser.id,session_date:today})
       .select().single();
-    if(error){
-      console.error('Session insert failed:',error.message);
-      return;
-    }
+    if(error){console.error('Session insert failed:',error.message);return;}
     currentSessionId=newSession.id;
-    console.log('New session created:',currentSessionId);
   }
 
-  // Update profile streak + session count
   const{data:p}=await sb.from('profiles')
     .select('total_sessions,streak,last_streak_day')
     .eq('id',currentUser.id).single();
   let streak=p?.streak||0;
   const lastDay=p?.last_streak_day||'';
-  if(lastDay===yesterday){
-    streak+=1; // continued streak
-  } else if(lastDay===today){
-    // Already played today — keep streak as is
-    streak=streak||1;
-  } else {
-    // Streak broken or new — reset to 1
-    streak=1;
-  }
+  if(lastDay===yesterday) streak+=1;
+  else if(lastDay===today) streak=streak||1;
+  else streak=1;
 
-  const{error:profileError}=await sb.from('profiles').update({
+  await sb.from('profiles').update({
     total_sessions:(p?.total_sessions||0)+1,
     streak,
     last_streak_day:today
   }).eq('id',currentUser.id);
-
-  if(profileError)console.error('Profile update failed:',profileError);
-  else console.log('Profile updated — sessions:',(p?.total_sessions||0)+1,'streak:',streak);
 }
 
+// ============================================================
+// FIX: buildSmartQueue — always rebuilds, never appends
+// ============================================================
 function buildSmartQueue(){
   if(!allPuzzles||allPuzzles.length===0)return;
 
-  const seenInSession=new Set(sessionQueue.map(p=>p.id));
+  const today=getTodayStr();
   const newQueue=[];
 
-  // ── Score and sort each puzzle ──
-  const today=getTodayStr();
+  // Separate unseen (this session) from seen
+  const unseenPuzzles = allPuzzles.filter(p => !seenThisSession.has(p.id));
+  const seenPuzzles   = allPuzzles.filter(p => seenThisSession.has(p.id));
 
-  const scored=allPuzzles
-    .filter(p=>!seenInSession.has(p.id)) // never repeat in session
-    .map(p=>{
+  // If everything has been seen — we're in recycle mode
+  const isRecycling = unseenPuzzles.length === 0;
+
+  if(isRecycling && !poolExhausted){
+    poolExhausted = true;
+    console.log('GymBrain: All puzzles seen — entering recycle mode (least-recently-seen order)');
+  }
+
+  // ── Score puzzles ──
+  function scorePuzzle(p){
+    // In recycle mode: score by how long ago they were seen (oldest first)
+    if(isRecycling){
       const h=userHistory[p.id];
-      let priority=0;
-
-      if(!h){
-        // Never seen before — highest priority
-        priority=80;
-      } else {
-        // Check spaced repetition — if next_show_date is in future, deprioritise heavily
-        const nextShow=h.next_show_date||today;
-        const isDue=nextShow<=today;
-        const lastSeen=h.last_seen_date||'';
-        const seenYesterday=lastSeen===getYesterdayStr();
-        const seenToday=lastSeen===today;
-
-        if(seenToday){
-          // Seen in a previous session today (admin replay) — lowest priority
-          priority=-50;
-        } else if(!isDue){
-          // Not due yet (spaced repetition says wait) — skip unless desperate
-          priority=-20;
-        } else if(seenYesterday){
-          // Seen yesterday — only show if got wrong (spaced rep says 1 day)
-          const acc=h.times_seen>0?h.times_correct/h.times_seen:0;
-          if(acc<0.5) priority=90; // got wrong yesterday — definitely show
-          else priority=20; // got right yesterday — low priority
-        } else {
-          // Due and not seen recently — normal scoring
-          const acc=h.times_seen>0?h.times_correct/h.times_seen:0;
-          if(acc<0.5) priority=100; // historically wrong = highest
-          else if(acc<0.8) priority=65;
-          else priority=15; // mastered = low but still show occasionally
-        }
+      const lastSeen=h?.last_seen_date||'1970-01-01';
+      // Convert date to a number for sorting — older = higher priority
+      const dayDiff=Math.floor((new Date(today)-new Date(lastSeen))/(1000*60*60*24));
+      let priority=dayDiff*10; // older = more priority
+      // Boost weak puzzles even in recycle
+      if(h){
+        const acc=h.times_seen>0?h.times_correct/h.times_seen:0;
+        if(acc<0.5) priority+=50;
+        else if(acc<0.8) priority+=20;
       }
-
       // Difficulty match bonus
       if(p.difficulty===currentDifficulty) priority+=15;
-      else if(Math.abs(p.difficulty-currentDifficulty)===1) priority+=5;
-      else priority-=5;
+      return priority;
+    }
 
-      return{...p,priority};
-    })
-    // Filter out not-due puzzles if enough fresh ones available
-    .filter((p,_,arr)=>{
-      // Count truly fresh puzzles (never seen or due today)
-      const freshCount=arr.filter(x=>x.priority>=60).length;
-      const goodCount=arr.filter(x=>x.priority>0).length;
+    // Normal mode: never-seen = highest priority
+    const h=userHistory[p.id];
+    if(!h) return 80 + (p.difficulty===currentDifficulty?15:0);
 
-      if(p.priority>=60) return true;  // always include fresh/unseen
-      if(p.priority>0 && goodCount<80) return true;  // include due puzzles if pool thin
-      if(p.priority<=0 && freshCount<20) return true; // only include not-due if desperate
-      if(p.priority<=0) return false;  // enough fresh — skip not-due puzzles
-      return true;
-    });
+    const nextShow=h.next_show_date||today;
+    const isDue=nextShow<=today;
+    const lastSeen=h.last_seen_date||'';
+    const seenYesterday=lastSeen===getYesterdayStr();
 
-  // ── Build per-type pools, sorted by priority ──
+    let priority=0;
+    if(!isDue){
+      priority=-20; // Not due yet — deprioritise
+    } else if(seenYesterday){
+      const acc=h.times_seen>0?h.times_correct/h.times_seen:0;
+      priority=acc<0.5?90:20;
+    } else {
+      const acc=h.times_seen>0?h.times_correct/h.times_seen:0;
+      if(acc<0.5) priority=100;
+      else if(acc<0.8) priority=65;
+      else priority=15;
+    }
+    if(p.difficulty===currentDifficulty) priority+=15;
+    else if(Math.abs(p.difficulty-currentDifficulty)===1) priority+=5;
+    else priority-=5;
+    return priority;
+  }
+
+  // Use unseen pool (normal) or seen pool (recycle)
+  const candidatePool = isRecycling ? seenPuzzles : unseenPuzzles.filter(p=>{
+    const priority=scorePuzzle(p);
+    // In normal mode: only skip not-due puzzles if we have enough fresh ones
+    if(priority<0){
+      const freshCount=unseenPuzzles.filter(x=>!userHistory[x.id]||userHistory[x.id]?.next_show_date<=today).length;
+      return freshCount < 30; // include not-due only if pool is thin
+    }
+    return true;
+  });
+
+  // Score and sort each type's pool
   const pools={};
   TYPES.forEach(t=>{
-    pools[t]=scored
+    pools[t]=candidatePool
       .filter(p=>p.type===t)
-      .sort((a,b)=>b.priority-a.priority+(Math.random()-0.5)*20);
+      .map(p=>({...p,_score:scorePuzzle(p)}))
+      .sort((a,b)=>b._score - a._score + (Math.random()-0.5)*15);
   });
 
   const ptrs={};TYPES.forEach(t=>{ptrs[t]=0;});
 
-  // ── STRICT INTERLEAVING with equal distribution ──
-  // Each "round" picks one puzzle from each type in shuffled order
-  // Math is capped at max 1 per 6 puzzles (same as others — no flooding)
-  const totalTarget=200;
+  // ── STRICT INTERLEAVING — one puzzle per type per round ──
+  const totalTarget = Math.min(
+    isRecycling ? allPuzzles.length : unseenPuzzles.length,
+    200
+  );
   let round=0;
 
-  while(newQueue.length<totalTarget){
-    // Shuffle type order each round for variety
+  while(newQueue.length < Math.max(totalTarget, 30)){
     const roundTypes=[...TYPES].sort(()=>Math.random()-0.5);
     let addedThisRound=0;
 
     for(const t of roundTypes){
-      if(newQueue.length>=totalTarget) break;
-      if(ptrs[t]>=pools[t].length) continue; // exhausted this type
+      if(newQueue.length >= 200) break;
+      if(ptrs[t] >= pools[t].length) continue;
 
       const puzzle=pools[t][ptrs[t]];
       ptrs[t]++;
 
       // Never same type twice in a row
-      if(newQueue.length>0&&newQueue[newQueue.length-1].type===t) continue;
+      if(newQueue.length>0 && newQueue[newQueue.length-1].type===t) continue;
 
       newQueue.push(puzzle);
       addedThisRound++;
     }
 
     round++;
-    // If all types exhausted or no progress — stop
     if(addedThisRound===0) break;
-    if(round>50) break;
+    if(round>60) break;
   }
 
-  // ── Force first puzzle to be EASY (difficulty 1) ──
-  if(newQueue.length>0&&newQueue[0].difficulty!==1){
+  // ── Force first puzzle EASY ──
+  if(newQueue.length>0 && newQueue[0].difficulty!==1){
     const easyIdx=newQueue.findIndex(p=>p.difficulty===1);
     if(easyIdx>0){
       const easy=newQueue.splice(easyIdx,1)[0];
@@ -954,52 +932,45 @@ function buildSmartQueue(){
   }
 
   // ── Inject memory grid puzzles every 6 positions ──
-  // Grid puzzles are memory type with input_type='grid'
   const gridPuzzles=allPuzzles.filter(p=>p.type==='memory'&&p.input_type==='grid');
   if(gridPuzzles.length>0){
-    // Insert a grid puzzle at position 5, 11, 17, 23...
     let insertCount=0;
     for(let pos=5;pos<newQueue.length;pos+=6){
-      const gridP=gridPuzzles[insertCount%gridPuzzles.length];
-      // Only insert if adjacent puzzles are not also memory
       if(newQueue[pos-1]?.type!=='memory'&&newQueue[pos+1]?.type!=='memory'){
+        const gridP=gridPuzzles[insertCount%gridPuzzles.length];
         newQueue.splice(pos,0,{...gridP,_injected:true});
         insertCount++;
       }
     }
-    console.log(`Injected ${insertCount} memory grid puzzles into queue`);
   }
 
-  // ── Append new puzzles, reset seen set for recycling ──
-  if(sessionQueue.length===0){
-    sessionQueue=newQueue;
-    queueIndex=0;
-  } else {
-    // Recycle — reshuffle all puzzles completely before appending
-    const recycled=allPuzzles
-      .map(p=>({...p,priority:Math.random()}))
-      .sort((a,b)=>b.priority-a.priority);
-    // Interleave recycled puzzles
-    const recycledQueue=[];
-    const rPools={};
-    TYPES.forEach(t=>{rPools[t]=recycled.filter(p=>p.type===t);});
-    const rPtrs={};TYPES.forEach(t=>{rPtrs[t]=0;});
-    let rLast=null,rAttempts=0;
-    while(recycledQueue.length<100&&rAttempts<600){
-      rAttempts++;
-      const avail=TYPES.filter(t=>t!==rLast&&rPtrs[t]<rPools[t].length);
-      if(!avail.length) break;
-      const t=avail[Math.floor(Math.random()*avail.length)];
-      recycledQueue.push(rPools[t][rPtrs[t]++]);
-      rLast=t;
-    }
-    sessionQueue=[...sessionQueue,...recycledQueue];
-  }
+  // ── FIX: Replace queue entirely, reset pointer ──
+  // Old code appended — this caused queueIndex to skip recycled puzzles.
+  sessionQueue = newQueue;
+  queueIndex = 0;
 
-  // Log distribution for debugging
+  // Log distribution
   const dist={};
   newQueue.forEach(p=>{dist[p.type]=(dist[p.type]||0)+1;});
-  console.log('Queue built:',newQueue.length,'puzzles. Distribution:',dist);
+  const mode=isRecycling?'RECYCLE':'FRESH';
+  console.log(`[GymBrain Queue ${mode}] ${newQueue.length} puzzles. Seen this session: ${seenThisSession.size}/${allPuzzles.length}. Dist:`,dist);
+
+  // Update pool badge in HUD
+  updatePoolBadge();
+}
+
+function updatePoolBadge(){
+  const badge=document.getElementById('pool-badge');
+  if(!badge) return;
+  const seen=seenThisSession.size;
+  const total=allPuzzles.length;
+  if(poolExhausted){
+    badge.textContent=`♻ ${seen}/${total} recycling`;
+  } else if(seen>0){
+    badge.textContent=`${total-seen} fresh left`;
+  } else {
+    badge.textContent='';
+  }
 }
 
 // ============================================================
@@ -1009,18 +980,14 @@ function startTimer(){
   sessionActive=true;
   sessionPaused=false;
   updateTimerDisplay();
-
-  // Pause timer when tab hidden / phone screen locks
   document.addEventListener('visibilitychange',handleVisibility);
-
   timerInterval=setInterval(timerTick,1000);
 }
 
 function handleVisibility(){
   if(document.hidden){
     sessionPaused=true;
-    clearInterval(timerInterval);
-    timerInterval=null;
+    clearInterval(timerInterval);timerInterval=null;
     const el=document.getElementById('g-timer');
     if(el)el.style.opacity='0.4';
   } else {
@@ -1064,8 +1031,28 @@ function updateTimerDisplay(){
 // ============================================================
 function renderNextPuzzle(){
   if(!sessionActive)return;
-  if(queueIndex>=sessionQueue.length){buildSmartQueue();if(sessionQueue.length===0)return;}
+
+  // FIX: If we've consumed the current queue, rebuild with remaining unseen puzzles.
+  // buildSmartQueue resets queueIndex=0, so we check AFTER the rebuild.
+  if(queueIndex >= sessionQueue.length){
+    buildSmartQueue();
+    // If still empty after rebuild, session is genuinely out of puzzles
+    if(sessionQueue.length === 0){
+      console.warn('GymBrain: No puzzles available — ending session');
+      endSession();
+      return;
+    }
+  }
+
   const p=sessionQueue[queueIndex++];
+  if(!p){renderNextPuzzle();return;} // safety skip
+
+  // FIX: Mark as seen immediately when displayed (not when answered).
+  // This prevents the same puzzle appearing twice in the queue even
+  // if the user abandons mid-answer.
+  seenThisSession.add(p.id);
+  updatePoolBadge();
+
   puzzleStartTime=Date.now();
   lastType=p.type;
   document.getElementById('g-type').textContent=TYPE_LABELS[p.type]||p.type;
@@ -1073,9 +1060,15 @@ function renderNextPuzzle(){
   diffEl.textContent=DIFF_LABELS[p.difficulty]||'';
   diffEl.className=`diff-tag diff-${p.difficulty}`;
   const area=document.getElementById('g-puzzle-area');area.innerHTML='';
-  if(p.type==='memory'&&(p.input_type==='grid'||!p.option_a)){renderMemoryGame(area,p);return;}
+
+  if(p.type==='memory'&&(p.input_type==='grid'||!p.option_a)){
+    renderMemoryGame(area,p);
+    return;
+  }
+
   const card=document.createElement('div');card.className='puzzle-card';
   card.innerHTML=`<div class="puzzle-counter">Puzzle #${puzzlesCompleted+1} <span class="mult-badge">${multiplier}× pts</span></div><div class="puzzle-q">${p.question}</div>`;
+
   if(p.input_type==='mcq'&&p.option_a){
     const grid=document.createElement('div');grid.className='opts-grid';
     const opts=[p.option_a,p.option_b,p.option_c,p.option_d];
@@ -1134,8 +1127,6 @@ async function recordAnswer(p,correct){
 
 async function updatePuzzleHistory(puzzleId,correct,responseTime){
   if(!currentUser||!sessionConfirmed)return;
-  // Skip tracking for grid memory puzzles — they are dynamically generated
-  // so the same puzzle_id produces a different experience every time
   const puzzle=allPuzzles.find(p=>p.id===puzzleId);
   if(puzzle&&puzzle.input_type==='grid')return;
   const existing=userHistory[puzzleId];
@@ -1150,7 +1141,7 @@ async function updatePuzzleHistory(puzzleId,correct,responseTime){
       response_time_seconds:responseTime,last_seen_date:getTodayStr(),
       next_show_date:nextDate.toISOString().split('T')[0]
     }).eq('user_id',currentUser.id).eq('puzzle_id',puzzleId);
-    userHistory[puzzleId]={...existing,times_seen:newTimesSeen,times_correct:newTimesCorrect};
+    userHistory[puzzleId]={...existing,times_seen:newTimesSeen,times_correct:newTimesCorrect,last_seen_date:getTodayStr()};
   } else {
     const daysUntilNext=correct?3:1;
     const nextDate=new Date();nextDate.setDate(nextDate.getDate()+daysUntilNext);
@@ -1179,17 +1170,14 @@ function addNext(card){
 // MEMORY GAME
 // ============================================================
 function renderMemoryGame(area,p){
-  // Large emoji pool — randomly sampled each game so layout is always different
   const emojiPool=[
     '🌟','🎯','🔥','💡','🎭','🧩','🎲','🌊','🌙','⚡','🎸','🦋','🌺','🚀','🎨','🦁',
-    '🐬','🦊','🌈','🍕','🎪','🏆','🎵','🌴','🦋','🔮','🎃','🌵','🦄','🍀','🎠','🌸',
-    '🐧','🦁','🍉','🎹','🌍','🦅','🎭','🍦','🌻','🎪','🦋','🔑','🎡','🌊','🦜','🍄'
+    '🐬','🦊','🌈','🍕','🎪','🏆','🎵','🌴','🔮','🎃','🌵','🦄','🍀','🎠','🌸',
+    '🐧','🍉','🎹','🌍','🦅','🍦','🌻','🔑','🎡','🦜','🍄','🦋','💎','🎀','🌮'
   ];
-  // Pick random emojis from pool — different every time
   const shuffledPool=[...emojiPool].sort(()=>Math.random()-0.5);
-  const emojis=shuffledPool;
   const pairCount=p.difficulty===1?6:8;
-  const picked=[...emojis].sort(()=>Math.random()-0.5).slice(0,Math.min(pairCount,8));
+  const picked=shuffledPool.slice(0,Math.min(pairCount,8));
   const pairs=[...picked,...picked].sort(()=>Math.random()-0.5);
   const state={pairs,revealed:[],matched:[],locked:false};
   const cols=picked.length<=6?3:4;
@@ -1206,8 +1194,6 @@ function renderMemoryGame(area,p){
     cell.onclick=()=>memClick(cell,state,grid,card,p);
     grid.appendChild(cell);
   });
-
-  // Tap hint
   const hint=document.createElement('div');
   hint.style.cssText='font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted);text-align:center;margin-top:12px;letter-spacing:1px;';
   hint.textContent='TAP CARDS TO REVEAL — FIND THE MATCHING PAIRS';
@@ -1255,7 +1241,6 @@ async function endSession(){
   const finalScore=Math.round(score*multiplier);
   const acc=puzzlesCompleted>0?Math.round(correctCount/puzzlesCompleted*100):0;
 
-  // Show done screen immediately — don't wait for DB
   document.getElementById('d-score').textContent=finalScore;
   document.getElementById('d-correct').textContent=correctCount;
   document.getElementById('d-puzzles').textContent=puzzlesCompleted;
@@ -1263,18 +1248,12 @@ async function endSession(){
   renderSessionInsights();
   launchCelebration(finalScore,acc);
   showScreen('screen-done');
-  // Populate all done screen sections
   populateDoneScreen(finalScore,acc);
 
-  // Save to DB — with recovery if confirmSession never ran
   if(currentUser){
     try{
       const today=getTodayStr();
-
-      // If confirmSession never completed — try to save now
       if(!sessionConfirmed||!currentSessionId){
-        console.warn('Session not confirmed — attempting emergency save');
-        // Try to find or create session record
         const{data:existing}=await sb.from('sessions')
           .select('id').eq('user_id',currentUser.id).eq('session_date',today).single();
         if(existing){
@@ -1285,7 +1264,6 @@ async function endSession(){
             .select().single();
           if(newSess) currentSessionId=newSess.id;
         }
-        // Update profile streak if not done
         if(!sessionConfirmed&&currentSessionId){
           const{data:p}=await sb.from('profiles')
             .select('total_sessions,streak,last_streak_day')
@@ -1300,8 +1278,6 @@ async function endSession(){
           }).eq('id',currentUser.id);
         }
       }
-
-      // Save session score
       if(currentSessionId&&finalScore>0){
         await sb.from('sessions').update({
           ended_at:new Date().toISOString(),
@@ -1309,209 +1285,115 @@ async function endSession(){
           puzzles_completed:puzzlesCompleted,
           correct_count:correctCount
         }).eq('id',currentSessionId);
-        console.log('Session saved — score:',finalScore,'puzzles:',puzzlesCompleted);
-
-        // Update best score
         const{data:pr}=await sb.from('profiles')
           .select('best_score').eq('id',currentUser.id).single();
         if(finalScore>(pr?.best_score||0)){
           await sb.from('profiles').update({best_score:finalScore}).eq('id',currentUser.id);
-          console.log('New personal best:',finalScore);
         }
       }
-    } catch(e){
-      console.error('Session save error:',e);
-    }
+    } catch(e){console.error('Session save error:',e);}
   }
 }
 
-function launchCelebration(finalScore, acc){
-  // Crown and message based on performance
+function launchCelebration(finalScore,acc){
   const crown=document.getElementById('crown-badge');
   const msg=document.getElementById('appreciation-msg');
   const sub=document.getElementById('appreciation-sub');
+  if(acc>=90){crown.textContent='👑';msg.textContent='OUTSTANDING!';msg.style.color='var(--accent)';sub.innerHTML='Perfect brain day. You are on fire.<br>Come back tomorrow and keep the streak alive. 🔥';}
+  else if(acc>=75){crown.textContent='🏆';msg.textContent='EXCELLENT WORK!';msg.style.color='var(--accent)';sub.innerHTML='Sharp mind, sharp answers.<br>Your brain is getting stronger every session.';}
+  else if(acc>=60){crown.textContent='💪';msg.textContent='WELL DONE!';msg.style.color='var(--accent3)';sub.innerHTML='Solid session today.<br>Consistency is the key — see you tomorrow.';}
+  else if(finalScore>0){crown.textContent='🧠';msg.textContent='KEEP GOING!';msg.style.color='var(--accent4)';sub.innerHTML='Every rep makes your brain stronger.<br>Tomorrow you will do better. That\'s how training works.';}
+  else{crown.textContent='🌱';msg.textContent='GOOD START!';msg.style.color='var(--accent3)';sub.innerHTML='You showed up. That\'s what matters.<br>Come back tomorrow for a fresh session.';}
 
-  if(acc>=90){
-    crown.textContent='👑';
-    msg.textContent='OUTSTANDING!';
-    msg.style.color='var(--accent)';
-    sub.innerHTML='Perfect brain day. You are on fire.<br>Come back tomorrow and keep the streak alive. 🔥';
-  } else if(acc>=75){
-    crown.textContent='🏆';
-    msg.textContent='EXCELLENT WORK!';
-    msg.style.color='var(--accent)';
-    sub.innerHTML='Sharp mind, sharp answers.<br>Your brain is getting stronger every session.';
-  } else if(acc>=60){
-    crown.textContent='💪';
-    msg.textContent='WELL DONE!';
-    msg.style.color='var(--accent3)';
-    sub.innerHTML='Solid session today.<br>Consistency is the key — see you tomorrow.';
-  } else if(finalScore>0){
-    crown.textContent='🧠';
-    msg.textContent='KEEP GOING!';
-    msg.style.color='var(--accent4)';
-    sub.innerHTML=`Every rep makes your brain stronger.<br>Tomorrow you will do better. That's how training works.`;
-  } else {
-    crown.textContent='🌱';
-    msg.textContent='GOOD START!';
-    msg.style.color='var(--accent3)';
-    sub.innerHTML=`You showed up. That's what matters.<br>Come back tomorrow for a fresh session.`;
-  }
-
-  // Launch confetti
-  const overlay=document.getElementById('celebration-overlay');
-  overlay.innerHTML='';
+  const overlay=document.getElementById('celebration-overlay');overlay.innerHTML='';
   const colours=['#c8ff00','#ff3d6e','#00e5ff','#ff9500','#ffffff','#c8ff00'];
   const count=acc>=75?60:acc>=60?40:20;
-
   for(let i=0;i<count;i++){
-    const piece=document.createElement('div');
-    piece.className='confetti-piece';
-    piece.style.cssText=`
-      left:${Math.random()*100}%;
-      background:${colours[Math.floor(Math.random()*colours.length)]};
-      width:${6+Math.random()*8}px;
-      height:${6+Math.random()*8}px;
-      border-radius:${Math.random()>0.5?'50%':'2px'};
-      animation-duration:${2+Math.random()*2}s;
-      animation-delay:${Math.random()*1.5}s;
-    `;
+    const piece=document.createElement('div');piece.className='confetti-piece';
+    piece.style.cssText=`left:${Math.random()*100}%;background:${colours[Math.floor(Math.random()*colours.length)]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>0.5?'50%':'2px'};animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*1.5}s;`;
     overlay.appendChild(piece);
   }
-
-  // Clear confetti after animation
   setTimeout(()=>{overlay.innerHTML='';},5000);
 }
 
-async function populateDoneScreen(finalScore, acc){
-  // Personal best
+async function populateDoneScreen(finalScore,acc){
   let prevBest=0;
   if(currentUser){
     const{data:pr}=await sb.from('profiles').select('best_score,streak').eq('id',currentUser.id).single();
     prevBest=pr?.best_score||0;
     const streak=pr?.streak||1;
     renderStreakDots(streak);
-    renderPersonalBest(finalScore, prevBest);
+    renderPersonalBest(finalScore,prevBest);
   }
   renderTomorrowPreview();
 }
 
-// ============================================================
-// DONE SCREEN ENHANCEMENTS
-// ============================================================
-
-function renderPersonalBest(finalScore, prevBest){
+function renderPersonalBest(finalScore,prevBest){
   document.getElementById('pb-today').textContent=finalScore;
   const pbRight=document.getElementById('pb-right');
-  if(finalScore>prevBest&&prevBest>0){
-    pbRight.innerHTML=`<div class="pb-new-record">🏆 NEW PERSONAL BEST!</div>`;
-  } else if(prevBest>0){
-    const gap=prevBest-finalScore;
-    document.getElementById('pb-gap').textContent=`${gap} pts behind your best`;
-    document.getElementById('pb-best').textContent=`Personal best: ${prevBest} pts`;
-  } else {
-    document.getElementById('pb-gap').textContent='First session complete!';
-    document.getElementById('pb-best').textContent='This is your first score';
-  }
+  if(finalScore>prevBest&&prevBest>0){pbRight.innerHTML=`<div class="pb-new-record">🏆 NEW PERSONAL BEST!</div>`;}
+  else if(prevBest>0){document.getElementById('pb-gap').textContent=`${prevBest-finalScore} pts behind your best`;document.getElementById('pb-best').textContent=`Personal best: ${prevBest} pts`;}
+  else{document.getElementById('pb-gap').textContent='First session complete!';document.getElementById('pb-best').textContent='This is your first score';}
 }
 
 function renderStreakDots(streak){
-  const container=document.getElementById('streak-dots');
-  container.innerHTML='';
+  const container=document.getElementById('streak-dots');container.innerHTML='';
   const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   const today=new Date().getDay();
-  // 0=Sun, convert to Mon-based
   const todayIdx=today===0?6:today-1;
-
   for(let i=0;i<7;i++){
     const dot=document.createElement('div');
-    const isPast=i<todayIdx;
     const isToday=i===todayIdx;
-    const isInStreak=i>=(todayIdx-streak+1)&&i<=todayIdx;
-
-    if(isToday){
-      dot.className='streak-dot today';
-      dot.textContent='🔥';
-    } else if(isInStreak&&isPast){
-      dot.className='streak-dot done';
-      dot.textContent='✓';
-    } else {
-      dot.className='streak-dot empty';
-      dot.textContent=days[i][0];
-    }
-    dot.title=days[i];
-    container.appendChild(dot);
+    const isInStreak=i>=(todayIdx-streak+1)&&i<todayIdx;
+    if(isToday){dot.className='streak-dot today';dot.textContent='🔥';}
+    else if(isInStreak){dot.className='streak-dot done';dot.textContent='✓';}
+    else{dot.className='streak-dot empty';dot.textContent=days[i][0];}
+    dot.title=days[i];container.appendChild(dot);
   }
-
-  // Streak loss warning
   const warn=document.getElementById('streak-warn');
-  if(streak>=3){
-    warn.innerHTML=`Don't break your <strong>${streak}-day streak</strong>. Come back tomorrow to keep it alive. 🔒`;
-  } else if(streak===1){
-    warn.innerHTML=`Day 1 complete. Come back tomorrow to start your streak. 💪`;
-  } else {
-    warn.innerHTML='';
-  }
+  if(streak>=3)warn.innerHTML=`Don't break your <strong>${streak}-day streak</strong>. Come back tomorrow to keep it alive. 🔒`;
+  else if(streak===1)warn.innerHTML='Day 1 complete. Come back tomorrow to start your streak. 💪';
+  else warn.innerHTML='';
 }
 
 function renderTomorrowPreview(){
   const tContent=document.getElementById('tomorrow-content');
   const tSub=document.getElementById('tomorrow-sub');
-
-  // Find weakest type from this session
-  let weakest=null;
-  let weakestAcc=1;
+  let weakest=null,weakestAcc=1;
   Object.keys(weakAreas).forEach(t=>{
     if(weakAreas[t].total>0){
       const acc=weakAreas[t].correct/weakAreas[t].total;
       if(acc<weakestAcc){weakestAcc=acc;weakest=t;}
     }
   });
-
   const typeNames={logic:'Logic',math:'Mental Math',word:'Word',sequence:'Sequences',visual:'Visual Reasoning',memory:'Memory'};
   const typeEmojis={logic:'🧩',math:'➕',word:'🔤',sequence:'🔢',visual:'👁',memory:'🧠'};
-
   if(weakest&&weakestAcc<0.8){
     const pct=Math.round(weakestAcc*100);
     tContent.textContent=`${typeEmojis[weakest]} Focus: ${typeNames[weakest]}`;
     tSub.innerHTML=`Your ${typeNames[weakest]} accuracy was <strong>${pct}%</strong> today.<br>Tomorrow we load more ${typeNames[weakest]} puzzles — get ready.`;
   } else {
     tContent.textContent='🎯 Full Brain Workout';
-    tSub.innerHTML=`Great balance today. Tomorrow brings fresh puzzles across all 6 types.<br>Difficulty increases as you improve.`;
+    tSub.innerHTML='Great balance today. Tomorrow brings fresh puzzles across all 6 types.<br>Difficulty increases as you improve.';
   }
 }
 
+// ============================================================
+// SHARE
+// ============================================================
 function getShareText(){
   const finalScore=parseInt(document.getElementById('d-score').textContent)||0;
   const accuracy=parseInt((document.getElementById('d-accuracy').textContent||'0%').replace('%',''));
   const puzzles=document.getElementById('d-puzzles').textContent||'0';
   const streakEl=document.getElementById('streak-dots');
   const streakDone=streakEl?streakEl.querySelectorAll('.streak-dot.done,.streak-dot.today').length:1;
-
-  // Score-aware opening line
   let opener='';
-  if(finalScore>=2000){
-    opener='🔥 BEAST MODE. '+finalScore+' points on GymBrain today.';
-  } else if(finalScore>=1000){
-    opener='🏆 '+finalScore+' points on GymBrain. Not bad at all.';
-  } else if(accuracy>=80){
-    opener='🎯 Sharp session on GymBrain today. '+accuracy+'% accuracy.';
-  } else {
-    opener='🧠 Just completed my GymBrain session!';
-  }
-
-  // Streak line
-  const streakLine=streakDone>=7?'🔥 '+streakDone+'-day streak — unstoppable.':
-                   streakDone>=3?'🔥 '+streakDone+'-day streak and counting.':
-                   streakDone>0?'🔥 Day '+streakDone+' — streak started.':'🧠 Session complete.';
-
-  return opener+
-    '\n\n🏆 Score: '+finalScore+' pts'+
-    '\n🎯 Accuracy: '+accuracy+'%'+
-    '\n🧩 Puzzles solved: '+puzzles+
-    '\n'+streakLine+
-    '\n\n15 mins daily. Science-backed. Free to try.'+
-    '\n👉 gymbrain.in';
+  if(finalScore>=2000)opener='🔥 BEAST MODE. '+finalScore+' points on GymBrain today.';
+  else if(finalScore>=1000)opener='🏆 '+finalScore+' points on GymBrain. Not bad at all.';
+  else if(accuracy>=80)opener='🎯 Sharp session on GymBrain today. '+accuracy+'% accuracy.';
+  else opener='🧠 Just completed my GymBrain session!';
+  const streakLine=streakDone>=7?'🔥 '+streakDone+'-day streak — unstoppable.':streakDone>=3?'🔥 '+streakDone+'-day streak and counting.':streakDone>0?'🔥 Day '+streakDone+' — streak started.':'🧠 Session complete.';
+  return opener+'\n\n🏆 Score: '+finalScore+' pts\n🎯 Accuracy: '+accuracy+'%\n🧩 Puzzles solved: '+puzzles+'\n'+streakLine+'\n\n15 mins daily. Science-backed. Free to try.\n👉 gymbrain.in';
 }
 
 function copyToClipboard(text,btnId){
@@ -1524,10 +1406,9 @@ function copyToClipboard(text,btnId){
     setTimeout(()=>{if(btn){btn.innerHTML=orig;btn.style.borderColor='';btn.style.color='';}},3000);
   };
   try{
-    if(navigator.clipboard&&window.isSecureContext){
-      navigator.clipboard.writeText(text).then(done).catch(()=>{fallbackCopy(text);done();});
-    } else {fallbackCopy(text);done();}
-  } catch(e){fallbackCopy(text);done();}
+    if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(done).catch(()=>{fallbackCopy(text);done();});}
+    else{fallbackCopy(text);done();}
+  }catch(e){fallbackCopy(text);done();}
 }
 
 function fallbackCopy(text){
@@ -1541,63 +1422,24 @@ function fallbackCopy(text){
 function showShareHelper(platform,text){
   const existing=document.getElementById('share-helper-modal');
   if(existing)existing.remove();
-
   const modal=document.createElement('div');
   modal.id='share-helper-modal';
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:600;display:flex;align-items:flex-end;justify-content:center;padding:20px;';
-
   const icons={linkedin:'💼',facebook:'📘',instagram:'📸'};
   const names={linkedin:'LinkedIn',facebook:'Facebook',instagram:'Instagram'};
-  const appUrls={
-    linkedin:'https://www.linkedin.com/feed/',
-    facebook:'https://www.facebook.com/',
-    instagram:'https://www.instagram.com/'
-  };
-
+  const appUrls={linkedin:'https://www.linkedin.com/feed/',facebook:'https://www.facebook.com/',instagram:'https://www.instagram.com/'};
   const textDisplay=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-
-  // Auto-copy function that also opens the app
-  const safeCopy=`
-    (function(){
-      try{
-        navigator.clipboard.writeText(${JSON.stringify(text)}).then(function(){
-          var btn=document.getElementById('share-copy-open-btn');
-          if(btn){btn.textContent='✅ Copied! Now paste in ${names[platform]}';}
-        });
-      }catch(e){
-        var ta=document.createElement('textarea');
-        ta.value=${JSON.stringify(text)};
-        ta.style.cssText='position:fixed;top:0;left:0;opacity:0;';
-        document.body.appendChild(ta);ta.focus();ta.select();
-        try{document.execCommand('copy');}catch(ex){}
-        document.body.removeChild(ta);
-        var btn=document.getElementById('share-copy-open-btn');
-        if(btn){btn.textContent='✅ Copied! Now paste in ${names[platform]}';}
-      }
-      setTimeout(function(){window.open('${appUrls[platform]}','_blank');},600);
-    })()
-  `;
-
+  const safeCopy=`(function(){try{navigator.clipboard.writeText(${JSON.stringify(text)}).then(function(){var btn=document.getElementById('share-copy-open-btn');if(btn){btn.textContent='✅ Copied! Now paste in ${names[platform]}';}});}catch(e){var ta=document.createElement('textarea');ta.value=${JSON.stringify(text)};ta.style.cssText='position:fixed;top:0;left:0;opacity:0;';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');}catch(ex){}document.body.removeChild(ta);var btn=document.getElementById('share-copy-open-btn');if(btn){btn.textContent='✅ Copied! Now paste in ${names[platform]};'}}setTimeout(function(){window.open('${appUrls[platform]}','_blank');},600);})()`;
   modal.innerHTML=`<div style="background:var(--card);border:1px solid var(--border2);border-radius:20px 20px 0 0;padding:28px 24px;width:100%;max-width:640px;">
     <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;margin-bottom:8px;">${icons[platform]} Share to ${names[platform]}</div>
-
     <div style="background:rgba(200,255,0,0.06);border:1px solid rgba(200,255,0,0.2);border-radius:12px;padding:14px;margin-bottom:16px;">
       <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;margin-bottom:8px;">HOW TO SHARE</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);line-height:1.9;">
-        1. Tap <strong style="color:var(--accent)">Copy & Open ${names[platform]}</strong> below<br>
-        2. Your score is copied automatically<br>
-        3. ${names[platform]} opens — create a new post<br>
-        4. Long press → Paste → Share 🎉
-      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);line-height:1.9;">1. Tap <strong style="color:var(--accent)">Copy & Open ${names[platform]}</strong> below<br>2. Your score is copied automatically<br>3. ${names[platform]} opens — create a new post<br>4. Long press → Paste → Share 🎉</div>
     </div>
-
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text);line-height:1.9;margin-bottom:16px;">${textDisplay}</div>
-
     <button id="share-copy-open-btn" onclick="${safeCopy}" style="width:100%;background:var(--accent);color:#080810;border:none;border-radius:12px;padding:16px;font-family:'Syne',sans-serif;font-weight:700;font-size:16px;cursor:pointer;margin-bottom:10px;">📋 Copy & Open ${names[platform]}</button>
-
     <button onclick="document.getElementById('share-helper-modal').remove()" style="width:100%;background:transparent;border:1px solid var(--border);border-radius:12px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);cursor:pointer;letter-spacing:1px;">CLOSE</button>
   </div>`;
-
   document.body.appendChild(modal);
   modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
 }
@@ -1607,28 +1449,15 @@ function shareScore(platform){
   const encodedText=encodeURIComponent(text);
   const url='https://gymbrain.in';
   switch(platform){
-    case 'whatsapp':
-      window.open('https://wa.me/?text='+encodedText,'_blank');
-      break;
-    case 'twitter':
-      window.open('https://twitter.com/intent/tweet?text='+encodedText,'_blank');
-      break;
-    case 'linkedin':
-      showShareHelper('linkedin',text);
-      break;
+    case 'whatsapp':window.open('https://wa.me/?text='+encodedText,'_blank');break;
+    case 'twitter':window.open('https://twitter.com/intent/tweet?text='+encodedText,'_blank');break;
+    case 'linkedin':showShareHelper('linkedin',text);break;
     case 'facebook':
-      if(navigator.share){
-        navigator.share({title:'GymBrain Score',text:text,url:url}).catch(()=>showShareHelper('facebook',text));
-      } else {
-        showShareHelper('facebook',text);
-      }
+      if(navigator.share){navigator.share({title:'GymBrain Score',text:text,url:url}).catch(()=>showShareHelper('facebook',text));}
+      else{showShareHelper('facebook',text);}
       break;
-    case 'instagram':
-      showShareHelper('instagram',text);
-      break;
-    case 'copy':
-      copyToClipboard(text,'copy-btn');
-      break;
+    case 'instagram':showShareHelper('instagram',text);break;
+    case 'copy':copyToClipboard(text,'copy-btn');break;
   }
 }
 
@@ -1650,26 +1479,12 @@ function renderSessionInsights(){
 }
 
 // ============================================================
-// UTILITIES
-// ============================================================
-function getTodayStr(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-function getYesterdayStr(){const d=new Date();d.setDate(d.getDate()-1);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
-function showMsg(id,text,type){const el=document.getElementById(id);el.textContent=text;el.className=`msg ${type}`;}
-function clearMsg(id){const el=document.getElementById(id);el.className='msg';el.textContent='';}
-
-// ============================================================
-// BOOT
-// ============================================================
-// ============================================================
 // ABANDON / CHANGE MODE
 // ============================================================
 function showAbandonModal(){
-  // Clear any pending mode change confirmation
   if(window._modeChangeTimeout){clearTimeout(window._modeChangeTimeout);window._modeChangeTimeout=null;}
   const typeTag=document.getElementById('g-type');
   if(typeTag){typeTag.style.color='';typeTag.style.borderColor='';}
-  // Pause timer while modal is open
   if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
 
   const modal=document.getElementById('abandon-modal');
@@ -1679,28 +1494,18 @@ function showAbandonModal(){
   actions.innerHTML='';
 
   const canAbandonFree=puzzlesCompleted<5;
-
   title.textContent='Session Options';
 
   if(canAbandonFree){
-    sub.innerHTML=`You've answered <strong>${puzzlesCompleted} puzzle${puzzlesCompleted===1?'':'s'}</strong>.<br>
-    Since you've done fewer than 5, you can <strong>exit freely</strong> — no lock triggered.<br>
-    Or change your session duration below.`;
+    sub.innerHTML=`You've answered <strong>${puzzlesCompleted} puzzle${puzzlesCompleted===1?'':'s'}</strong>.<br>Since you've done fewer than 5, you can <strong>exit freely</strong> — no lock triggered.<br>Or change your session duration below.`;
   } else {
-    sub.innerHTML=`You've answered <strong>${puzzlesCompleted} puzzles</strong> and scored <strong>${Math.round(score*multiplier)} pts</strong>.<br>
-    <span class="warn">Ending now will lock today's session.</span> Your score will be saved.<br>
-    Or change the remaining time below.`;
+    sub.innerHTML=`You've answered <strong>${puzzlesCompleted} puzzles</strong> and scored <strong>${Math.round(score*multiplier)} pts</strong>.<br><span class="warn">Ending now will lock today's session.</span> Your score will be saved.<br>Or change the remaining time below.`;
   }
 
-  // Change mode options — only show modes with MORE time remaining
   const modeGrid=document.createElement('div');
   modeGrid.className='mode-change-grid';
-  const modes=[{mins:15,icon:'⚡'},{mins:30,icon:'🔥'},{mins:45,icon:'💪'},{mins:60,icon:'🏆'}].filter(m=>m.mins*60>sessionSeconds||(m.mins!==selectedMode));
-
-  // Show modes that still make sense
   [{mins:15,icon:'⚡'},{mins:30,icon:'🔥'},{mins:45,icon:'💪'},{mins:60,icon:'🏆'}].forEach(m=>{
-    const remaining=Math.floor(sessionSeconds/60);
-    if(m.mins===selectedMode)return; // skip current
+    if(m.mins===selectedMode)return;
     const btn=document.createElement('button');
     btn.className='mode-change-btn';
     btn.innerHTML=`${m.icon}<br>${m.mins}<span class="mode-lbl">min</span>`;
@@ -1716,14 +1521,12 @@ function showAbandonModal(){
     actions.appendChild(modeGrid);
   }
 
-  // End session button
   const endBtn=document.createElement('button');
   endBtn.className='modal-btn danger';
   endBtn.textContent=canAbandonFree?'Exit — No Lock':'End Session & Save Score';
   endBtn.onclick=()=>abandonSession(canAbandonFree);
   actions.appendChild(endBtn);
 
-  // Resume button
   const resumeBtn=document.createElement('button');
   resumeBtn.className='modal-btn safe';
   resumeBtn.textContent='Resume Session →';
@@ -1735,7 +1538,6 @@ function showAbandonModal(){
 
 function closeAbandonModal(){
   document.getElementById('abandon-modal').classList.remove('active');
-  // Resume timer
   if(sessionActive&&sessionSeconds>0&&!timerInterval){
     timerInterval=setInterval(timerTick,1000);
   }
@@ -1743,97 +1545,68 @@ function closeAbandonModal(){
 
 function changeSessionMode(newMins){
   document.getElementById('abandon-modal').classList.remove('active');
-
   const currentRemaining=sessionSeconds;
-  const newTotalSeconds=newMins*60;
-
   if(newMins<selectedMode){
-    // Switching to shorter mode
-    // If remaining time exceeds new mode duration — cap it
-    sessionSeconds=Math.min(currentRemaining, newTotalSeconds);
+    sessionSeconds=Math.min(currentRemaining,newMins*60);
   } else {
-    // Switching to longer mode — add the extra time
-    const addedSeconds=(newMins-selectedMode)*60;
-    sessionSeconds=currentRemaining+addedSeconds;
+    sessionSeconds=currentRemaining+(newMins-selectedMode)*60;
   }
-
-  // Update multiplier badge in HUD
   selectedMode=newMins;
   multiplier=multipliers[newMins];
-  totalSeconds=newTotalSeconds;
-
-  // Update score display with new multiplier
+  totalSeconds=newMins*60;
   document.getElementById('g-score').textContent=Math.round(score*multiplier);
-
-  // Update timer display immediately
   updateTimerDisplay();
 
-  // Show brief confirmation in HUD
   const typeTag=document.getElementById('g-type');
   const original=typeTag.textContent;
   typeTag.textContent=`✓ Changed to ${newMins} min · ${multiplier}× pts`;
-  typeTag.style.color='var(--accent)';
-  typeTag.style.borderColor='rgba(200,255,0,0.3)';
+  typeTag.style.color='var(--accent)';typeTag.style.borderColor='rgba(200,255,0,0.3)';
   if(window._modeChangeTimeout)clearTimeout(window._modeChangeTimeout);
   window._modeChangeTimeout=setTimeout(()=>{
     const el=document.getElementById('g-type');
     if(el){el.textContent=original;el.style.color='';el.style.borderColor='';}
   },2000);
 
-  // Restart timer cleanly
   if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
-  if(sessionActive&&sessionSeconds>0){
-    timerInterval=setInterval(timerTick,1000);
-  }
+  if(sessionActive&&sessionSeconds>0){timerInterval=setInterval(timerTick,1000);}
 }
 
 async function abandonSession(freeexit){
-  // Clear any pending timeouts
   if(window._modeChangeTimeout){clearTimeout(window._modeChangeTimeout);window._modeChangeTimeout=null;}
-
-  // Hide modal immediately
   document.getElementById('abandon-modal').classList.remove('active');
-
-  // Stop timer
   if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
   sessionActive=false;
   document.removeEventListener('visibilitychange',handleVisibility);
   sessionStorage.removeItem('gb_active_session');
 
   if(freeexit){
-    // Exit without lock — reset or delete session record
     if(currentSessionId&&sessionConfirmed){
       try{
-        // Reset session to blank state (don't delete — admin may have reset record)
-        await sb.from('sessions').update({
-          score:0,puzzles_completed:0,correct_count:0,ended_at:null
-        }).eq('id',currentSessionId);
-        // Decrement total_sessions on profile
+        await sb.from('sessions').update({score:0,puzzles_completed:0,correct_count:0,ended_at:null}).eq('id',currentSessionId);
         const{data:pr}=await sb.from('profiles').select('total_sessions').eq('id',currentUser.id).single();
-        const newTotal=Math.max(0,(pr?.total_sessions||1)-1);
-        await sb.from('profiles').update({total_sessions:newTotal}).eq('id',currentUser.id);
-      } catch(e){console.warn('Free exit cleanup failed:',e);}
+        await sb.from('profiles').update({total_sessions:Math.max(0,(pr?.total_sessions||1)-1)}).eq('id',currentUser.id);
+      }catch(e){console.warn('Free exit cleanup:',e);}
     }
-    sessionConfirmed=false;
-    currentSessionId=null;
-    await loadHome();
-    showScreen('screen-home');
+    sessionConfirmed=false;currentSessionId=null;
+    await loadHome();showScreen('screen-home');
   } else {
-    // Save score and end
     await endSession();
   }
 }
 
-window.addEventListener('beforeunload',(e)=>{
-  if(sessionActive&&puzzlesCompleted>0){
-    e.preventDefault();
-    e.returnValue='Your session is still active. Progress will be saved.';
-  }
-});
+// ============================================================
+// UTILITIES
+// ============================================================
+function getTodayStr(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function getYesterdayStr(){const d=new Date();d.setDate(d.getDate()-1);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function showMsg(id,text,type){const el=document.getElementById(id);el.textContent=text;el.className=`msg ${type}`;}
+function clearMsg(id){const el=document.getElementById(id);el.className='msg';el.textContent='';}
 
-window.addEventListener('popstate',()=>{
-  if(sessionActive){history.pushState(null,'',window.location.href);}
+window.addEventListener('beforeunload',(e)=>{
+  if(sessionActive&&puzzlesCompleted>0){e.preventDefault();e.returnValue='Your session is still active. Progress will be saved.';}
 });
+window.addEventListener('popstate',()=>{if(sessionActive)history.pushState(null,'',window.location.href);});
 history.pushState(null,'',window.location.href);
 
 init();
