@@ -970,11 +970,27 @@ function buildSmartQueue(){
   }
 
   // ── Force first puzzle EASY ──
-  if(newQueue.length>0 && newQueue[0].difficulty!==1){
-    const easyIdx=newQueue.findIndex(p=>p.difficulty===1);
+  // Guarantee an easy (difficulty=1) puzzle is always queue[0].
+  // The easy puzzle may not have made it into the queue at all (scored lower than hard
+  // puzzles and pool was full), so we fetch from allPuzzles directly if needed.
+  if(newQueue.length===0||newQueue[0].difficulty!==1){
+    const q1Type=newQueue.length>1?newQueue[1].type:null;
+    let easyIdx=newQueue.findIndex(p=>p.difficulty===1&&p.type!==q1Type);
+    if(easyIdx<0)easyIdx=newQueue.findIndex(p=>p.difficulty===1);
     if(easyIdx>0){
       const easy=newQueue.splice(easyIdx,1)[0];
       newQueue.unshift(easy);
+    } else if(easyIdx<0){
+      // Not in queue at all — pull directly from full puzzle pool
+      const q1TypeNow=newQueue.length>0?newQueue[0].type:null;
+      const easyFromPool=allPuzzles.find(p=>p.difficulty===1&&p.type!==q1TypeNow&&p.active!==false)
+                      ||allPuzzles.find(p=>p.difficulty===1&&p.active!==false);
+      if(easyFromPool)newQueue.unshift({...easyFromPool});
+    }
+    // Fix interleaving collision: queue[0] and queue[1] same type → swap queue[1]
+    if(newQueue.length>1&&newQueue[0].type===newQueue[1].type){
+      const swapIdx=newQueue.findIndex((p,i)=>i>1&&p.type!==newQueue[0].type);
+      if(swapIdx>1){const tmp=newQueue[1];newQueue[1]=newQueue[swapIdx];newQueue[swapIdx]=tmp;}
     }
   }
 
