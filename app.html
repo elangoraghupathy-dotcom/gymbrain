@@ -607,6 +607,18 @@ async function loadHome(){
     const diffMins=Math.round((nextMidnight-new Date())/60000);
     const hrs=Math.floor(diffMins/60),mins=diffMins%60;
     const acc=todaySession.puzzles_completed>0?Math.round(todaySession.correct_count/todaySession.puzzles_completed*100):0;
+
+    // FIX: Ghost session — user opened but never answered a single puzzle
+    // Show a different message and re-enable the button so they can actually play
+    if(todaySession.puzzles_completed===0&&todaySession.score===0){
+      document.getElementById('begin-btn').style.display='block';
+      document.getElementById('begin-btn').disabled=false;
+      document.getElementById('begin-btn').textContent='BEGIN SESSION';
+      document.getElementById('begin-btn').style.background='var(--accent)';
+      document.getElementById('cooldown-card').style.display='none';
+      return;
+    }
+
     const appreciation=todaySession.score>200?'Outstanding session. Your brain is getting stronger.':todaySession.score>100?'Solid work today. Consistency builds real gains.':'Good start. Every rep counts. See you tomorrow.';
     document.getElementById('cd-score').textContent=todaySession.score||0;
     document.getElementById('cd-accuracy').textContent=acc+'%';
@@ -709,9 +721,23 @@ async function beginSession(){
   if(!currentUser)return;
   const today=getTodayStr();
   const isAdminUser=currentUser?.email===ADMIN_EMAIL;
+
+  // Check for existing COMPLETED session (score > 0 or puzzles_completed > 0)
+  // A score=0 / puzzles_completed=0 session means the user opened but never played —
+  // we treat that as no session and let them start fresh (no lock).
   if(!isAdminUser){
-    const{data:existing}=await sb.from('sessions').select('id').eq('user_id',currentUser.id).eq('session_date',today).single();
-    if(existing){await loadHome();return;}
+    const{data:existing}=await sb.from('sessions')
+      .select('id,score,puzzles_completed')
+      .eq('user_id',currentUser.id)
+      .eq('session_date',today)
+      .single();
+    if(existing&&(existing.puzzles_completed>0||existing.score>0)){
+      await loadHome();return;
+    }
+    // If a ghost session exists (0 puzzles), delete it so confirmSession creates a fresh one
+    if(existing&&existing.puzzles_completed===0){
+      await sb.from('sessions').delete().eq('id',existing.id);
+    }
   }
 
   // ── FULL STATE RESET ──
@@ -722,7 +748,7 @@ async function beginSession(){
   multiplier=multipliers[selectedMode];
   score=0;puzzlesCompleted=0;correctCount=0;sessionHistory=[];lastType=null;
 
-  // FIX: Reset deduplication state completely on new session
+  // Reset deduplication state completely on new session
   seenThisSession = new Set();
   sessionQueue = [];
   queueIndex = 0;
@@ -730,8 +756,24 @@ async function beginSession(){
 
   setLoadingText('BUILDING YOUR SESSION');
   showScreen('screen-loading');
-  const{data:puzzles}=await sb.from('puzzles').select('*').eq('active',true);
-  allPuzzles=puzzles||[];
+
+  // FIX: Try to load puzzles from localStorage cache first (instant for returning users)
+  const cached=localStorage.getItem('gb_puzzles_cache');
+  const cacheTime=parseInt(localStorage.getItem('gb_puzzles_cache_time')||'0');
+  const cacheAge=Date.now()-cacheTime;
+  const CACHE_TTL=6*60*60*1000; // 6 hours
+
+  if(cached&&cacheAge<CACHE_TTL){
+    allPuzzles=JSON.parse(cached);
+    setLoadingText('READY');
+  } else {
+    const{data:puzzles}=await sb.from('puzzles').select('*').eq('active',true);
+    allPuzzles=puzzles||[];
+    if(allPuzzles.length){
+      localStorage.setItem('gb_puzzles_cache',JSON.stringify(allPuzzles));
+      localStorage.setItem('gb_puzzles_cache_time',String(Date.now()));
+    }
+  }
 
   if(!allPuzzles.length){
     alert('Could not load puzzles. Check your connection.');
@@ -742,7 +784,12 @@ async function beginSession(){
   buildSmartQueue();
   sessionStorage.setItem('gb_active_session',JSON.stringify({mode:selectedMode,seconds:totalSeconds,multiplier,startedAt:Date.now()}));
 
-  const isFirstSession=!(await sb.from('sessions').select('id').eq('user_id',currentUser.id).limit(1)).data?.length;
+  // NOTE: Session row is NOT created here.
+  // It is created lazily in confirmSession() only when the user answers puzzle 1.
+  // This means users who open and close the app before answering are NEVER locked.
+
+  const{data:prevSessions}=await sb.from('sessions').select('id').eq('user_id',currentUser.id).limit(1);
+  const isFirstSession=!prevSessions?.length;
   if(isFirstSession){
     showScreen('screen-welcome');
   } else {
@@ -1582,11 +1629,20 @@ async function abandonSession(freeexit){
   if(freeexit){
     if(currentSessionId&&sessionConfirmed){
       try{
-        await sb.from('sessions').update({score:0,puzzles_completed:0,correct_count:0,ended_at:null}).eq('id',currentSessionId);
+        await sb.from('sessions').delete().eq('id',currentSessionId);
         const{data:pr}=await sb.from('profiles').select('total_sessions').eq('id',currentUser.id).single();
         await sb.from('profiles').update({total_sessions:Math.max(0,(pr?.total_sessions||1)-1)}).eq('id',currentUser.id);
       }catch(e){console.warn('Free exit cleanup:',e);}
     }
+    // Also clean up any ghost session (score=0) for today that may exist
+    try{
+      const today=getTodayStr();
+      await sb.from('sessions')
+        .delete()
+        .eq('user_id',currentUser.id)
+        .eq('session_date',today)
+        .eq('puzzles_completed',0);
+    }catch(e){}
     sessionConfirmed=false;currentSessionId=null;
     await loadHome();showScreen('screen-home');
   } else {
